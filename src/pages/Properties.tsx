@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { propertyService } from '../services/firebase/properties';
 import type { Property } from '../types/property';
 import { QueryDocumentSnapshot, DocumentData } from '@firebase/firestore';
@@ -10,6 +11,8 @@ const Properties = () => {
   const [error, setError] = useState('');
   const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [hasMore, setHasMore] = useState(true);
+  
+  const navigate = useNavigate();
 
   const loadProperties = async (isFirstLoad = false) => {
     try {
@@ -95,7 +98,12 @@ const Properties = () => {
                     ) : 'No features'}
                   </td>
                   <td>
-                    <button className="action-button edit">Edit</button>
+                  <button 
+                    onClick={() => navigate(`/properties/${property.id}`)} 
+                    className="action-button edit"
+                  >
+                    Edit
+                  </button>
                     <button className="action-button view">View</button>
                   </td>
                 </tr>

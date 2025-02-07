@@ -6,6 +6,7 @@ import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Properties from './pages/Properties';
+import Property from './pages/Property';
 import NotFound from './pages/NotFound';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -33,6 +34,11 @@ function App() {
             </PrivateRoute>
           } />
           <Route path="*" element={<NotFound />} />
+          <Route path="/properties/:id" element={
+            <PrivateRoute>
+              <Property />
+            </PrivateRoute>
+          } />
         </Routes>
       </AuthProvider>
     </Router>
