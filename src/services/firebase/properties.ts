@@ -125,32 +125,40 @@ export const propertyService = {
         
         const images = await Promise.all(imagesSnapshot.docs.map(async (doc) => {
           const data = doc.data();
-          console.log('Processing image data:', data); // Debug log
-  
+          const imageId = doc.id; // This is the Firestore document ID
+          console.log('Processing image:', { imageId, data }); // Debug log
+    
           try {
             const [thumbnail, medium, large] = await Promise.all([
               this.getImageDownloadURL(data.urls.thumbnail),
               this.getImageDownloadURL(data.urls.medium),
               this.getImageDownloadURL(data.urls.large),
             ]);
-  
+    
             return {
-              id: doc.id,
-              ...data,
+              id: imageId, // Use the Firestore document ID
               urls: {
                 thumbnail,
                 medium,
                 large
-              }
+              },
+              order: data.order || 0,
+              title: data.title || '',
+              description: data.description || ''
             } as PropertyImage;
           } catch (error) {
-            console.error('Error processing image:', doc.id, error);
+            console.error('Error processing image:', imageId, error);
             return null;
           }
         }));
-  
-        // Filter out any null values from failed image processing
-        return images.filter((image): image is PropertyImage => image !== null);
+    
+        return images
+          .filter((image): image is PropertyImage => image !== null)
+          .sort((a, b) => {
+            const orderA = typeof a.order === 'number' ? a.order : 0;
+            const orderB = typeof b.order === 'number' ? b.order : 0;
+            return orderA - orderB;
+          });
       } catch (error) {
         console.error('Error in getPropertyImages:', error);
         throw error;
@@ -193,5 +201,15 @@ export const propertyService = {
         console.error('Error deleting image:', error);
         throw error;
       }
-    }
+    },
+    async updateImageOrder(propertyId: string, imageId: string, newOrder: number): Promise<void> {
+      try {
+        const propertyRef = doc(db, 'properties', propertyId);
+        const imageRef = doc(collection(propertyRef, 'images'), imageId);
+        await updateDoc(imageRef, { order: newOrder });
+      } catch (error) {
+        console.error('Error updating image order:', error);
+        throw error;
+      }
+    },
   };

@@ -78,6 +78,33 @@ const Property = () => {
     await loadPropertyImages();
   };
 
+  const handleReorder = async (imageId: string, newOrder: number) => {
+    try {
+      if (!id) return;
+      setLoading(true);
+      
+      // Update the order of all images
+      const updates = images.map((image, index) => {
+        if (image.id === imageId) {
+          return propertyService.updateImageOrder(id, image.id, newOrder);
+        }
+        // Adjust other images' order based on the new position
+        if (newOrder <= index) {
+          return propertyService.updateImageOrder(id, image.id, index + 1);
+        }
+        return Promise.resolve();
+      });
+  
+      await Promise.all(updates);
+      await loadPropertyImages(); // Refresh images
+    } catch (error) {
+      console.error('Error reordering images:', error);
+      setError('Failed to reorder images');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleImageDelete = async (imageId: string) => {
     try {
       if (!id) return;
@@ -304,6 +331,7 @@ const Property = () => {
                   }
                 }}
                 onImageDelete={handleImageDelete}
+                onReorder={handleReorder}
               />
             ) : (
               <p className="text-gray-500">No images uploaded yet.</p>
