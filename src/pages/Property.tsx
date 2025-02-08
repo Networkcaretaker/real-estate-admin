@@ -1,35 +1,97 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
-import type { Property } from '../types/property';
+import ImageGallery from '../components/ImageGallery';
+import ImageUploader from '../components/ImageUploader';
 import { propertyService } from '../services/firebase/properties';
+import type { Property, PropertyImage } from '../types/property'; // Add this import
 
 const Property = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [property, setProperty] = useState<Property | null>(null);
+  const [images, setImages] = useState<PropertyImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Define loadProperty function
+  const loadProperty = async () => {
+    if (!id) return;
+    try {
+      const propertyData = await propertyService.getProperty(id);
+      setProperty(propertyData);
+    } catch (err) {
+      console.error('Error loading property:', err);
+      setError('Failed to load property');
+      throw err; // Re-throw to be caught by the outer try-catch
+    }
+  };
+
+  const loadPropertyImages = async () => {
+    if (!id) return;
+    try {
+      const propertyImages = await propertyService.getPropertyImages(id);
+      setImages(propertyImages);
+    } catch (err) {
+      console.error('Error loading property images:', err);
+      setError('Failed to load property images');
+      throw err;
+    }
+  };
+
   useEffect(() => {
-    const loadProperty = async () => {
+    const loadData = async () => {
       if (!id) return;
-      
       try {
         setLoading(true);
-        const propertyData = await propertyService.getProperty(id);
-        setProperty(propertyData);
+        console.log('Starting to load property data for ID:', id);
+        
+        try {
+          const propertyData = await loadProperty();
+          console.log('Property data loaded:', propertyData);
+        } catch (err) {
+          console.error('Failed in loadProperty:', err);
+        }
+  
+        try {
+          const imageData = await loadPropertyImages();
+          console.log('Image data loaded:', imageData);
+        } catch (err) {
+          console.error('Failed in loadPropertyImages:', err);
+        }
+  
       } catch (err) {
-        console.error('Error loading property:', err);
-        setError('Failed to load property');
+        console.error('Error in loadData:', err);
+        setError('Failed to load property data');
       } finally {
         setLoading(false);
       }
     };
-
-    loadProperty();
+  
+    loadData();
   }, [id]);
+
+  const handleUploadComplete = async (imageIds: string[]) => {
+    console.log('Uploaded images:', imageIds);
+    // Refresh the images
+    await loadPropertyImages();
+  };
+
+  const handleImageDelete = async (imageId: string) => {
+    try {
+      if (!id) return;
+      await propertyService.deletePropertyImage(id, imageId);
+      await loadPropertyImages(); // Refresh images after delete
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      setError('Failed to delete image');
+    }
+  };
+  
+  const handleUploadError = (error: string) => {
+    setError(error);
+  };
 
   const handleStatusChange = async (newStatus: string) => {
     if (!property || !id) return;
@@ -216,6 +278,46 @@ const Property = () => {
                 </div>
               ) : null}
             </div>
+          </section>
+
+          {/* Image Gallery */}
+          <section className="rounded-lg border bg-white p-6">
+            <h2 className="mb-4 text-xl font-semibold">Property Images</h2>
+            {images.length > 0 ? (
+              <ImageGallery
+                propertyId={id || ''}
+                images={images}
+                featureImageId={property?.media?.feature_image_id}
+                onFeatureImageSelect={async (imageId) => {
+                  if (!id) return;
+                  try {
+                    await propertyService.setFeatureImage(id, imageId);
+                    setProperty(prev => prev ? {
+                      ...prev,
+                      media: {
+                        ...prev.media,
+                        feature_image_id: imageId
+                      }
+                    } : null);
+                  } catch (err) {
+                    setError('Failed to set feature image');
+                  }
+                }}
+                onImageDelete={handleImageDelete}
+              />
+            ) : (
+              <p className="text-gray-500">No images uploaded yet.</p>
+            )}
+          </section>
+
+          {/* Upload */}
+          <section className="rounded-lg border bg-white p-6">
+            <h2 className="mb-4 text-xl font-semibold">Upload Images</h2>
+            <ImageUploader
+              propertyId={id || ''}
+              onUploadComplete={handleUploadComplete}
+              onError={handleUploadError}
+            />
           </section>
         </div>
       </div>

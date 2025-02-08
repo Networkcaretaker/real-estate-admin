@@ -3,6 +3,7 @@ import {
   collection, 
   getDocs,
   getDoc,
+  deleteDoc,
   doc,
   updateDoc,
   query, 
@@ -12,8 +13,11 @@ import {
   DocumentData, 
   QueryDocumentSnapshot 
 } from '@firebase/firestore';
-import type { Property } from '../../types/property';
 
+import type { Property, PropertyImage } from '../../types/property';
+import { getStorage, ref, getDownloadURL, deleteObject } from '@firebase/storage';
+
+const storage = getStorage();
 const PROPERTIES_PER_PAGE = 10;
 
 export const propertyService = {
@@ -101,6 +105,93 @@ export const propertyService = {
       } catch (error: any) {
         console.error('Firebase error updating property status:', error);
         throw new Error(`Failed to update property status: ${error.message}`);
+      }
+    },
+    async getImageDownloadURL(path: string): Promise<string> {
+      try {
+        const imageRef = ref(storage, path);
+        return await getDownloadURL(imageRef);
+      } catch (error) {
+        console.error('Error getting download URL:', error, 'for path:', path);
+        throw error;
+      }
+    },
+  
+    async getPropertyImages(propertyId: string): Promise<PropertyImage[]> {
+      try {
+        const propertyRef = doc(db, 'properties', propertyId);
+        const imagesCollectionRef = collection(propertyRef, 'images');
+        const imagesSnapshot = await getDocs(imagesCollectionRef);
+        
+        const images = await Promise.all(imagesSnapshot.docs.map(async (doc) => {
+          const data = doc.data();
+          console.log('Processing image data:', data); // Debug log
+  
+          try {
+            const [thumbnail, medium, large] = await Promise.all([
+              this.getImageDownloadURL(data.urls.thumbnail),
+              this.getImageDownloadURL(data.urls.medium),
+              this.getImageDownloadURL(data.urls.large),
+            ]);
+  
+            return {
+              id: doc.id,
+              ...data,
+              urls: {
+                thumbnail,
+                medium,
+                large
+              }
+            } as PropertyImage;
+          } catch (error) {
+            console.error('Error processing image:', doc.id, error);
+            return null;
+          }
+        }));
+  
+        // Filter out any null values from failed image processing
+        return images.filter((image): image is PropertyImage => image !== null);
+      } catch (error) {
+        console.error('Error in getPropertyImages:', error);
+        throw error;
+      }
+    },
+  
+    async setFeatureImage(propertyId: string, imageId: string): Promise<void> {
+      try {
+        const propertyRef = doc(db, 'properties', propertyId);
+        await updateDoc(propertyRef, {
+          'media.feature_image_id': imageId
+        });
+      } catch (error) {
+        console.error('Error setting feature image:', error);
+        throw error;
+      }
+    },
+    async deletePropertyImage(propertyId: string, imageId: string): Promise<void> {
+      try {
+        const propertyRef = doc(db, 'properties', propertyId);
+        const imageRef = doc(collection(propertyRef, 'images'), imageId);
+        
+        // Get the image data first to get the URLs
+        const imageDoc = await getDoc(imageRef);
+        const imageData = imageDoc.data();
+        
+        // Delete the files from storage
+        if (imageData?.urls) {
+          const storage = getStorage();
+          await Promise.all([
+            deleteObject(ref(storage, imageData.urls.thumbnail)),
+            deleteObject(ref(storage, imageData.urls.medium)),
+            deleteObject(ref(storage, imageData.urls.large))
+          ]);
+        }
+        
+        // Delete the document from Firestore
+        await deleteDoc(imageRef);
+      } catch (error) {
+        console.error('Error deleting image:', error);
+        throw error;
       }
     }
   };
