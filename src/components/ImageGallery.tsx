@@ -62,7 +62,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className={`relative w-[calc(25%-1rem)] aspect-square overflow-hidden rounded-lg border border-gray-200 group cursor-move ${
+                      className={`relative w-[calc(15%-1rem)] aspect-square overflow-hidden rounded-lg border border-gray-200 group cursor-move ${
                         snapshot.isDragging ? 'ring-2 ring-blue-500 shadow-lg z-50' : ''
                       }`}
                     >

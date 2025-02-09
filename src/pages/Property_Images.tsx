@@ -177,10 +177,10 @@ const Property = () => {
               <option value="Active">Active</option>
             </select>
             <button
-              onClick={() => navigate(`/properties/${id}/images`)}
+              onClick={() => navigate(`/properties/${id}/details`)}
               className="rounded bg-blue-100 px-4 py-2 hover:bg-blue-200"
             >
-              Edit Images
+              View Details
             </button>
             <button
               onClick={() => navigate('/properties')}
@@ -192,56 +192,6 @@ const Property = () => {
         </div>
 
         <div className="grid gap-6">
-          {/* Feature Image Section */}
-          <section className="rounded-lg border bg-white p-6 mb-6">
-            <h2 className="mb-4 text-xl font-semibold">Feature Image</h2>
-            <div className="relative">
-              {loading ? (
-                <div className="w-full h-[400px] bg-gray-100 animate-pulse rounded-lg" />
-              ) : property?.media?.feature_image_id ? (
-                <div className="relative w-full h-[400px]">
-                  {images.map((image) => {
-                    if (image.id === property.media.feature_image_id) {
-                      return (
-                        <img
-                          key={image.id}
-                          src={image.urls.large}
-                          alt={property.title || 'Property feature image'}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
-              ) : (
-                <div className="w-full h-[400px] bg-gray-100 flex items-center justify-center rounded-lg">
-                  <div className="text-center">
-                    <svg 
-                      className="mx-auto h-12 w-12 text-gray-400" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
-                      />
-                    </svg>
-                    <p className="mt-2 text-sm text-gray-500">No feature image set</p>
-                    <button
-                      onClick={() => navigate(`/properties/${id}/images`)}
-                      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                    >
-                      Manage Images
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>  
           {/* Basic Details */}
           <section className="rounded-lg border bg-white p-6">
             <h2 className="mb-4 text-xl font-semibold">Basic Details</h2>

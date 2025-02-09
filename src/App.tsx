@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Properties from './pages/Properties';
 import Property from './pages/Property';
+import Property_Images from './pages/Property_Images';
 import NotFound from './pages/NotFound';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -34,9 +35,14 @@ function App() {
             </PrivateRoute>
           } />
           <Route path="*" element={<NotFound />} />
-          <Route path="/properties/:id" element={
+          <Route path="/properties/:id/details" element={
             <PrivateRoute>
               <Property />
+            </PrivateRoute>
+          } />
+          <Route path="/properties/:id/images" element={
+            <PrivateRoute>
+              <Property_Images />
             </PrivateRoute>
           } />
         </Routes>
