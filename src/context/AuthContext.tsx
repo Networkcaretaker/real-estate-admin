@@ -1,31 +1,37 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged } from '@firebase/auth';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User } from '@firebase/auth';
 import { auth } from '../services/firebase/config';
+import { onAuthStateChanged } from '@firebase/auth';
 
 interface AuthContextType {
-  currentUser: User | null;
+  user: User | null;
   loading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({ currentUser: null, loading: true });
+const AuthContext = createContext<AuthContextType>({ user: null, loading: true });
 
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+      setUser(user);
       setLoading(false);
     });
 
     return unsubscribe;
   }, []);
 
+  const value = {
+    user,
+    loading
+  };
+
   return (
-    <AuthContext.Provider value={{ currentUser, loading }}>
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );

@@ -32,30 +32,54 @@ export interface PropertyLocation {
     reduced: boolean;
   }
   
-  export interface PropertyMedia {
-    feature_image_id: string;
-    interior_image_ids: string[];
-    exterior_image_ids: string[];
-  }
-  
   export interface PropertyImage {
-    storage_url: string;
+    id: string;
+    urls: {
+      thumbnail: string;
+      medium: string;
+      large: string;
+    };
+    filename: string;
     title: string;
     description: string;
+    order: number;
+    created_at: string;
+    updated_at: string;
+  }
+  
+  export interface PropertyMedia {
+    feature_image_id?: string;
+    interior_image_ids?: string[];
+    exterior_image_ids?: string[];
   }
   
   export interface Property {
     id: string;
     title: string;
-    description: string;
-    details: PropertyDetails;
-    excerpt: string;
-    price: number;
-    website_status: string;
-    location: PropertyLocation;
-    rooms: PropertyRooms;
-    features: PropertyFeatures;
-    flags: PropertyFlags;
+    price?: number;
+    description?: string;
+    location: {
+      town: string;
+      region: string;
+      municipality: string;
+      postcode: string;
+    };
+    details: {
+      property_type: string;
+      direction: string;
+      area_plot: number;
+      area_property: number;
+    };
+    rooms: {
+      bedrooms: number;
+      bathrooms: number;
+      total_rooms: number;
+    };
+    features: {
+      interior: string[];
+      exterior: string[];
+    };
+    website_status?: string;
     media: PropertyMedia;
-    images: Record<string, PropertyImage>;
+    images?: Record<string, PropertyImage>;
   }

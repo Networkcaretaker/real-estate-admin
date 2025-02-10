@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/firebase/auth';
 
 const Header = () => {
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -20,9 +20,9 @@ const Header = () => {
       <div className="header-content">
         <div className="header-title">Real Estate Admin</div>
         <div className="header-actions">
-          {currentUser?.email && (
+          {user?.email && (
             <>
-              <span className="user-email">{currentUser.email}</span>
+              <span className="user-email">{user.email}</span>
               <button onClick={handleLogout} className="logout-button">
                 Logout
               </button>
