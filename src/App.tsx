@@ -6,49 +6,67 @@ import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Properties from './pages/Properties';
-import Property from './pages/Property';
-import Property_Images from './pages/Property_Images';
+//import Property from './pages/Property';
+//import Property_Images from './pages/Property_Images';
 import NotFound from './pages/NotFound';
 
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const { currentUser, loading } = useAuth();
-  
-  if (loading) return <div>Loading...</div>;
-  
-  return currentUser ? <>{children}</> : <Navigate to="/login" />;
+import Navigation from './components/layout/Navigation';
+import PropertyDetails from './pages/Property';
+import PropertyEdit from './pages/Edit_Property';
+import PropertyImages from './pages/Property_Images';
+import Settings from './pages/Settings';
+import Users from './pages/Users';
+import Websites from './pages/Websites';
+
+const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  return user ? <>{children}</> : <Navigate to="/login" />;
+
 };
 
-function App() {
+const App: React.FC = () => {
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          } />
-          <Route path="/properties" element={
-            <PrivateRoute>
-              <Properties />
-            </PrivateRoute>
-          } />
-          <Route path="*" element={<NotFound />} />
-          <Route path="/properties/:id/details" element={
-            <PrivateRoute>
-              <Property />
-            </PrivateRoute>
-          } />
-          <Route path="/properties/:id/images" element={
-            <PrivateRoute>
-              <Property_Images />
-            </PrivateRoute>
-          } />
-        </Routes>
-      </AuthProvider>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="min-h-screen bg-gray-50">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/*"
+              element={
+                <PrivateRoute>
+                  <Navigation />
+                  <main className="max-w-auto mx-auto py-6 sm:px-6 lg:px-8">
+                    <Routes>
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/properties" element={<Properties />} />
+                      <Route path="/properties/:id/details" element={<PropertyDetails />} />
+                      <Route path="/properties/:id/edit" element={<PropertyEdit />} />
+                      <Route path="/properties/:id/images" element={<PropertyImages />} />
+                      <Route path="/settings" element={<Settings />} />
+                      <Route path="/users" element={<Users />} />
+                      <Route path="/websites" element={<Websites />} />
+                      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </main>
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;

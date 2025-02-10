@@ -137,6 +137,7 @@ export const propertyService = {
     
             return {
               id: imageId, // Use the Firestore document ID
+              filename: data.filename,
               urls: {
                 thumbnail,
                 medium,
@@ -209,6 +210,20 @@ export const propertyService = {
         await updateDoc(imageRef, { order: newOrder });
       } catch (error) {
         console.error('Error updating image order:', error);
+        throw error;
+      }
+    },
+    async updateImageDetails(
+      propertyId: string, 
+      imageId: string, 
+      updates: { title?: string; description?: string }
+    ): Promise<void> {
+      try {
+        const propertyRef = doc(db, 'properties', propertyId);
+        const imageRef = doc(collection(propertyRef, 'images'), imageId);
+        await updateDoc(imageRef, updates);
+      } catch (error) {
+        console.error('Error updating image details:', error);
         throw error;
       }
     },

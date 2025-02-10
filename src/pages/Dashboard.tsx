@@ -1,41 +1,21 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/layout/Header';
 
 const Dashboard = () => {
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   return (
     <div>
-      <Header />
-      <div className="dashboard-container">
-      <h1>Admin Dashboard</h1>
-      
-      <div className="dashboard-stats">
-        <div className="stat-card">
-          <h3>Properties</h3>
-          <button onClick={() => navigate('/properties')}>
+        <div className="items-center place-items-center justify-center flex flex-col">
+          <div className="text-2xl font-bold m-2">Welcome</div>
+          <div className="text-3xl m-2">{user?.email}</div>
+        </div>
+        <div className="items-center place-items-center justify-center flex flex-col">
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 rounded m-6 w-4/12" onClick={() => navigate('/properties')}>
             Manage Properties
           </button>
-        </div>
-
-        <div className="stat-card">
-          <h3>Welcome</h3>
-          <p>{currentUser?.email}</p>
-        </div>
-      </div>
-
-      <div className="dashboard-actions">
-        <h2>Quick Actions</h2>
-        <div className="action-buttons">
-          <button onClick={() => navigate('/properties')}>
-            View Properties
-          </button>
-          {/* Add more action buttons as needed */}
-        </div>
-      </div>
-      </div>
+        </div>     
       </div>
   );
 };

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { propertyService } from '../services/firebase/properties';
 import type { Property } from '../types/property';
 import { QueryDocumentSnapshot, DocumentData } from '@firebase/firestore';
-import Header from '../components/layout/Header';
 
 interface PropertyWithFeatureImage extends Property {
   featureImageUrl?: string | null;
@@ -83,7 +82,6 @@ const Properties = () => {
   if (error) {
     return (
       <>
-        <Header />
         <div className="error-message">{error}</div>
       </>
     );
@@ -91,29 +89,24 @@ const Properties = () => {
 
   return (
     <>
-      <Header />
-      <div className="properties-container">
-        <h1>Properties</h1>
-        {loading && <div className="loading">Loading properties...</div>}
-        
-        <div className="table-container">
+      <div className="max-w-auto">       
+        <div className="proptable">
           <table className="properties-table">
             <thead>
               <tr>
-                <th className="w-24">Image</th>
+                <th className="w-24"></th>
                 <th>ID</th>
                 <th>Title</th>
                 <th>Price</th>
                 <th>Location</th>
                 <th>Status</th>
-                <th>Features</th>
                 <th>Actions</th>
               </tr>
-            </thead>
+            </thead>        
             <tbody>
               {properties.map((property) => (
-                <tr key={property.id}>
-                  <td className="p-2">
+                <tr key={property.id}>                 
+                  <td className="p-2" onClick={() => navigate(`/properties/${property.id}/details`)}>
                     {loadingImages[property.id] ? (
                       <div className="w-16 h-16 bg-gray-100 animate-pulse rounded-lg" />
                     ) : property.featureImageUrl ? (
@@ -140,10 +133,10 @@ const Properties = () => {
                       </div>
                     )}
                   </td>
-                  <td>{property.id}</td>  
-                  <td>{property.title || 'Untitled'}</td>
-                  <td>${property.price?.toLocaleString() || 'N/A'}</td>
-                  <td>
+                  <td onClick={() => navigate(`/properties/${property.id}/details`)}>{property.id}</td>  
+                  <td onClick={() => navigate(`/properties/${property.id}/details`)}>{property.title || 'Untitled'}</td>
+                  <td onClick={() => navigate(`/properties/${property.id}/details`)}>${property.price?.toLocaleString() || 'N/A'}</td>
+                  <td onClick={() => navigate(`/properties/${property.id}/details`)}>
                     {property.location ? (
                       `${property.location.town}, ${property.location.region}`
                     ) : 'N/A'}
@@ -154,24 +147,11 @@ const Properties = () => {
                     </span>
                   </td>
                   <td>
-                    {property.features?.interior?.length ? (
-                      <span className="feature-count">
-                        {property.features.interior.length} features
-                      </span>
-                    ) : 'No features'}
-                  </td>
-                  <td>
                     <button 
                       onClick={() => navigate(`/properties/${property.id}/images`)} 
                       className="action-button edit"
                     >
                       Manage Images
-                    </button>
-                    <button 
-                      onClick={() => navigate(`/properties/${property.id}/details`)} 
-                      className="action-button view"
-                    >
-                      View Details
                     </button>
                   </td>
                 </tr>
@@ -179,7 +159,7 @@ const Properties = () => {
             </tbody>
           </table>
         </div>
-        
+        {loading && <div className="loading">Loading properties...</div>}
         {hasMore && !loading && (
           <button onClick={handleLoadMore} className="load-more-button">
             Load More
