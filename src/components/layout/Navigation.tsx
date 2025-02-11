@@ -1,7 +1,7 @@
 // src/components/layout/Navigation.tsx
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Building2, Settings, Users, Globe } from 'lucide-react';
+import { Home, Building2, Settings, Users, Globe, Users2 } from 'lucide-react';
 import { authService } from '../../services/firebase/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -15,9 +15,10 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: '/dashboard', label: 'Dashboard', icon: <Home className="w-5 h-5" /> },
   { path: '/properties', label: 'Properties', icon: <Building2 className="w-5 h-5" /> },
-  { path: '/settings', label: 'Settings', icon: <Settings className="w-5 h-5" /> },
-  { path: '/users', label: 'Users', icon: <Users className="w-5 h-5" /> },
   { path: '/websites', label: 'Websites', icon: <Globe className="w-5 h-5" /> },
+  { path: '/clients', label: 'Clients', icon: <Users className="w-5 h-5" /> },
+  { path: '/settings', label: 'Settings', icon: <Settings className="w-5 h-5" /> },
+  { path: '/users', label: 'Users', icon: <Users2 className="w-5 h-5" /> },
 ];
 
 const Navigation: React.FC = () => {
@@ -40,7 +41,8 @@ const Navigation: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <span className="text-xl font-bold">Real Estate Admin</span>
+              <img src="/house.svg" alt="Real Estate" className="h-8 w-auto" />
+              <span className="text-3xl font-bold px-4">REAL ESTATE</span>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {navItems.map((item) => (

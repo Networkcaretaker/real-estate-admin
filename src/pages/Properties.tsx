@@ -133,10 +133,10 @@ const Properties = () => {
                       </div>
                     )}
                   </td>
-                  <td onClick={() => navigate(`/properties/${property.id}/details`)}>{property.id}</td>  
-                  <td onClick={() => navigate(`/properties/${property.id}/details`)}>{property.title || 'Untitled'}</td>
-                  <td onClick={() => navigate(`/properties/${property.id}/details`)}>${property.price?.toLocaleString() || 'N/A'}</td>
-                  <td onClick={() => navigate(`/properties/${property.id}/details`)}>
+                  <td onClick={() => navigate(`/properties/${property.id}/details`)} className="cursor-pointer">{property.id}</td>  
+                  <td onClick={() => navigate(`/properties/${property.id}/details`)} className="cursor-pointer">{property.title || 'Untitled'}</td>
+                  <td onClick={() => navigate(`/properties/${property.id}/details`)} className="cursor-pointer">${property.price?.toLocaleString() || 'N/A'}</td>
+                  <td onClick={() => navigate(`/properties/${property.id}/details`)} className="cursor-pointer">
                     {property.location ? (
                       `${property.location.town}, ${property.location.region}`
                     ) : 'N/A'}
