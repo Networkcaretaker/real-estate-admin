@@ -17,6 +17,7 @@ import PropertyImages from './pages/Property_Images';
 import Settings from './pages/Settings';
 import Users from './pages/Users';
 import Websites from './pages/Websites';
+import Clients from './pages/Clients';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -55,6 +56,7 @@ const App: React.FC = () => {
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/users" element={<Users />} />
                       <Route path="/websites" element={<Websites />} />
+                      <Route path="/clients" element={<Clients />} />
                       <Route path="/" element={<Navigate to="/dashboard" replace />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
