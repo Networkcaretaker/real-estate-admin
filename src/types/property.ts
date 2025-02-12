@@ -1,85 +1,90 @@
 export interface PropertyLocation {
-    country: string;
+  country: string;
+  region: string;
+  municipality: string;
+  town: string;
+  postcode: string;
+}
+
+export interface PropertyDetails {
+  property_type: string;
+  area_plot: number;
+  area_property: number;
+  direction: string;
+}
+
+export interface PropertyRooms {
+  bedrooms: number;
+  bathrooms: number;
+  total_rooms: number;
+}
+
+export interface PropertyFeatures {
+  interior: string[];
+  exterior: string[];
+  luxury: string[];
+  amenities: string[];
+  utilities: string[];
+}
+
+export interface PropertyFlags {
+  sold: boolean;
+  reduced: boolean;
+}
+
+export interface PropertyImage {
+  id: string;
+  urls: {
+    thumbnail: string;
+    medium: string;
+    large: string;
+  };
+  filename: string;
+  title: string;
+  description: string;
+  order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PropertyMedia {
+  feature_image_id?: string;
+  interior_image_ids?: string[];
+  exterior_image_ids?: string[];
+}
+
+export interface Property {
+  id: string;
+  title: string;
+  price?: number;
+  description?: string;
+  location: {
+    town: string;
     region: string;
     municipality: string;
-    town: string;
     postcode: string;
-  }
-  
-  export interface PropertyDetails {
+  };
+  details: {
     property_type: string;
+    direction: string;
     area_plot: number;
     area_property: number;
-    direction: string;
-  }
-  
-  export interface PropertyRooms {
+  };
+  rooms: {
     bedrooms: number;
     bathrooms: number;
     total_rooms: number;
-  }
-  
-  export interface PropertyFeatures {
+  };
+  features: {
     interior: string[];
     exterior: string[];
-    luxury: string[];
-    amenities: string[];
-    utilities: string[];
-  }
-  
-  export interface PropertyFlags {
-    sold: boolean;
-    reduced: boolean;
-  }
-  
-  export interface PropertyImage {
-    id: string;
-    urls: {
-      thumbnail: string;
-      medium: string;
-      large: string;
-    };
-    filename: string;
-    title: string;
-    description: string;
-    order: number;
-    created_at: string;
-    updated_at: string;
-  }
-  
-  export interface PropertyMedia {
-    feature_image_id?: string;
-    interior_image_ids?: string[];
-    exterior_image_ids?: string[];
-  }
-  
-  export interface Property {
-    id: string;
-    title: string;
-    price?: number;
-    description?: string;
-    location: {
-      town: string;
-      region: string;
-      municipality: string;
-      postcode: string;
-    };
-    details: {
-      property_type: string;
-      direction: string;
-      area_plot: number;
-      area_property: number;
-    };
-    rooms: {
-      bedrooms: number;
-      bathrooms: number;
-      total_rooms: number;
-    };
-    features: {
-      interior: string[];
-      exterior: string[];
-    };
-    website_status?: string;
-    media: PropertyMedia;
-    images?: Record<string, PropertyImage>;
-  }
+  };
+  website_status?: string;
+  media: PropertyMedia;
+  images?: Record<string, PropertyImage>;
+}
+
+export interface EditState {
+  title: string;
+  description: string;
+}

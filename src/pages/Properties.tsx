@@ -90,7 +90,7 @@ const Properties = () => {
   return (
     <>
       <div className="max-w-auto">       
-        <div className="proptable">
+        <div className="">
           <table className="properties-table">
             <thead>
               <tr>
