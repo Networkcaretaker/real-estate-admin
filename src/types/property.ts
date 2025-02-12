@@ -88,3 +88,10 @@ export interface EditState {
   title: string;
   description: string;
 }
+
+export type SortDirection = 'asc' | 'desc';
+
+export interface SortConfig {
+  field: string;
+  direction: SortDirection;
+}
