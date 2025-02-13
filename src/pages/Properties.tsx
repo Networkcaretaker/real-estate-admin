@@ -314,7 +314,6 @@ const Properties = () => {
                         ? 'bg-green-400 hover:bg-green-600' 
                         : 'bg-red-400  hover:bg-red-600'}`}
                     title={property.website_status === 'Active' ? 'Deactivate Property' : 'Activate Property'}
-                    
                   >
                     <svg 
                       className="w-6 h-6 text-white cursor-pointer" 
@@ -332,9 +331,6 @@ const Properties = () => {
                       />
                     </svg>                            
                   </button>
-
-
-
 
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
