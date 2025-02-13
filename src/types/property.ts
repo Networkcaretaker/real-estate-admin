@@ -55,9 +55,11 @@ export interface PropertyMedia {
 
 export interface Property {
   id: string;
+  property_id: string;
   title: string;
   price?: number;
   description?: string;
+  excerpt?: string;
   location: {
     town: string;
     region: string;

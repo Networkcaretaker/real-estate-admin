@@ -139,7 +139,65 @@ const Properties = () => {
     <div className="container mx-auto px-2 py-2">
       {/* Sort Controls */}
       <div className="mb-4 bg-white rounded-lg shadow p-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 justify-center">
+          {/* Search input */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Reference:</label>
+            <input
+              type="text"
+              placeholder="Search properties..."
+              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              disabled={loading}
+            />
+          </div>
+
+          {/* Filters */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Type:</label>
+            <select
+              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm w-24"
+              disabled={loading}
+            >
+              <option value="">All</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Municipality:</label>
+            <select
+              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm w-24"
+              disabled={loading}
+            >
+              <option value="">All</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Town:</label>
+            <select
+              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm w-24" 
+              disabled={loading}
+            >
+              <option value="">All</option>
+            </select>
+          </div>
+
+          {/* Filter Price min/max */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Price:</label>
+            <input
+              type="number"
+              placeholder="Min"
+              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm w-32"
+              disabled={loading}
+            />
+            <input
+              type="number"
+              placeholder="Max"
+              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm w-32"
+              disabled={loading}
+            />
+          </div>
+
+          {/* Sort by dropdown */}
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-gray-700">Sort by:</label>
             <select
@@ -148,14 +206,15 @@ const Properties = () => {
               className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
               disabled={loading}
             >
-              <option value="updated_at">Last Updated</option>
-              <option value="id">ID</option>
+              <option value="updated_at">Updated</option>
+              <option value="property_id">Reference</option>
               <option value="title">Title</option>
               <option value="price">Price</option>
               <option value="website_status">Status</option>
             </select>
           </div>
 
+          {/* Order dropdown */}
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-gray-700">Order:</label>
             <select
@@ -164,10 +223,21 @@ const Properties = () => {
               className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
               disabled={loading}
             >
-              <option value="desc">Descending</option>
-              <option value="asc">Ascending</option>
+              <option value="desc">Desc</option>
+              <option value="asc">Asc</option>
             </select>
           </div>
+
+          {/* Update Filter Button */}
+          <div className="flex items-center gap-2">
+            <button 
+              className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              disabled={loading}
+            >
+              Update
+            </button>
+          </div>
+
 
           {loading && (
             <div className="text-sm text-gray-500">
@@ -181,7 +251,7 @@ const Properties = () => {
           <thead className="bg-gray-50">
             <tr>
               <th className="w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
@@ -191,7 +261,7 @@ const Properties = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {properties.map((property) => (
-              <tr key={property.id} className="hover:bg-gray-50">
+              <tr key={property.id} className="hover:bg-gray-50 items-center">
                 <td className="px-6 py-4 whitespace-nowrap" onClick={() => navigate(`/properties/${property.id}/details`)}>
                   {loadingImages[property.id] ? (
                     <div className="w-32 h-32 bg-gray-100 animate-pulse rounded-lg" />
@@ -220,7 +290,7 @@ const Properties = () => {
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
-                  <div className="text-sm text-gray-900">{property.id}</div>
+                  <div className="text-sm text-gray-900">{property.property_id}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
                   <div className="text-sm text-gray-900">{property.title || 'Untitled'}</div>
@@ -231,25 +301,99 @@ const Properties = () => {
                 <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
                   <div className="text-sm text-gray-900">
                     {property.location ? (
-                      `${property.location.town}, ${property.location.region}`
+                      `${property.location.town}, ${property.location.municipality}`
                     ) : 'N/A'}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-4 py-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${property.website_status?.toLowerCase() === 'active' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'}`}
+                <td className="px-6 py-4 whitespace-nowrap justify-center">
+
+                  <button
+                    onClick={() => {}}
+                    className={`p-1 rounded-full transition-colors
+                      ${property.website_status?.toLowerCase() === 'active' 
+                        ? 'bg-green-400 hover:bg-green-600' 
+                        : 'bg-red-400  hover:bg-red-600'}`}
+                    title={property.website_status === 'Active' ? 'Deactivate Property' : 'Activate Property'}
+                    
                   >
-                    {property.website_status || 'Unknown'}
-                  </span>
+                    <svg 
+                      className="w-6 h-6 text-white cursor-pointer" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2}
+                        d={property.website_status === 'Active' 
+                          ? 'M5 13l4 4L19 7' 
+                          : 'M6 18L18 6M6 6l12 12'}
+                      />
+                    </svg>                            
+                  </button>
+
+
+
+
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button 
-                    onClick={() => navigate(`/properties/${property.id}/images`)} 
-                    className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-md transition-colors"
+                <button
+                    onClick={() => navigate(`/properties/${property.id}/edit`)}
+                    className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                    title="Edit Property"
                   >
-                    Manage Images
+                    <svg 
+                      className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                      />
+                    </svg>                            
+                  </button>
+                  <button
+                    onClick={() => navigate(`/properties/${property.id}/images`)}
+                    className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                    title="Manage Images"
+                  >
+                    <svg 
+                      className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z M15 8l1.5 1.5M16.5 9.5L19 12"
+                      />
+                    </svg>                            
+                  </button>
+                  <button
+                    onClick={() => {}}
+                    className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                    title="Delete Property"
+                  >
+                    <svg 
+                      className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>                            
                   </button>
                 </td>
               </tr>

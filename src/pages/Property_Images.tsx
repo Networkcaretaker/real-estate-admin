@@ -80,7 +80,7 @@ const Property = () => {
   const handleReorder = async (imageId: string, newOrder: number) => {
     try {
       if (!id) return;
-      setLoading(true);
+      setLoading(false);
       
       // Update the order of all images
       const updates = images.map((image, index) => {
