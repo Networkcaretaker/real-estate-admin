@@ -32,7 +32,8 @@ const Dashboard = () => {
         <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 rounded m-1 w-4/12" onClick={() => navigate('/clients')}>
           {user?.email} | Logout
         </button>
-      </div>   
+      </div>
+         
     </div>
   );
 };

@@ -144,7 +144,7 @@ const Property = () => {
   }
 
   return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">
             {property?.title ? `${property.id} | ${property.title}` : 'Property Details'}
@@ -160,12 +160,6 @@ const Property = () => {
               <option value="Active">Active</option>
             </select>
             <button
-              onClick={() => navigate(`/properties/${id}/images`)}
-              className="rounded bg-blue-100 px-4 py-2 hover:bg-blue-200"
-            >
-              Edit Images
-            </button>
-            <button
               onClick={() => navigate('/properties')}
               className="rounded bg-gray-100 px-4 py-2 hover:bg-gray-200"
             >
@@ -176,11 +170,37 @@ const Property = () => {
 
         <div className="grid gap-6">
           {/* Feature Image Section */}
-          <section className="rounded-lg border bg-white p-6 mb-6">
-            <h2 className="mb-4 text-xl font-semibold">Feature Image</h2>
+          <section className="rounded-lg border bg-white p-6">
+          <div className="flex mb-2">
+              <div className="w-1/2 flex items-start justify-between">
+                <h2 className="mb-2 text-xl font-semibold">Feature Image</h2>
+              </div>
+              <div className="w-1/2 flex items-baseline justify-end">
+                <button
+                  onClick={() => navigate(`/properties/${id}/images`)}
+                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  title="Edit Images"
+                >
+                  <svg 
+                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>                            
+                </button>
+              </div>
+            </div>
+            
             <div className="relative">
               {loading ? (
-                <div className="w-full h-[500px] bg-gray-100 animate-pulse rounded-lg" />
+                <div className="w-full h-[400px] bg-gray-100 animate-pulse rounded-lg" />
               ) : property?.media?.feature_image_id ? (
                 <div className="relative w-full h-[500px]">
                   {images.map((image) => {
@@ -227,11 +247,44 @@ const Property = () => {
           </section>  
           {/* Basic Details */}
           <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Basic Details</h2>
+            <div className="flex mb-2">
+              <div className="w-1/2 flex items-start justify-between">
+                <h2 className="mb-2 text-xl font-semibold">Basic Details</h2>
+              </div>
+              <div className="w-1/2 flex items-baseline justify-end">
+                <button
+                  onClick={() => navigate(`/properties/${id}/edit`)}
+                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  title="Edit Property"
+                >
+                  <svg 
+                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>                            
+                </button>
+              </div>
+            </div>
             <div className="grid gap-4">
+              <div>
+                <label className="font-medium">Reference</label>
+                <p>{property?.id}</p>
+              </div>
               <div>
                 <label className="font-medium">Title</label>
                 <p>{property?.title}</p>
+              </div>
+              <div>
+                <label className="font-medium">Excerpt</label>
+                <p>{property?.excerpt}</p>
               </div>
               <div>
                 <label className="font-medium">Price</label>
@@ -243,13 +296,40 @@ const Property = () => {
               <div>
                 <label className="font-medium">Description</label>
                 <p>{property?.description}</p>
+                {/*<div dangerouslySetInnerHTML={{__html: property?.description}} />*/}
               </div>
-            </div>
+            </div>           
           </section>
 
           {/* Location */}
           <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Location</h2>
+            <div className="flex mb-2">
+              <div className="w-1/2 flex items-start justify-between">
+                <h2 className="mb-2 text-xl font-semibold">Location</h2>
+              </div>
+              <div className="w-1/2 flex items-baseline justify-end">
+                <button
+                  // onClick={() => }
+                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  title="Edit Location"
+                >
+                  <svg 
+                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -274,7 +354,33 @@ const Property = () => {
 
           {/* Property Details */}
           <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Property Details</h2>
+            <div className="flex mb-2">
+              <div className="w-1/2 flex items-start justify-between">
+                <h2 className="mb-2 text-xl font-semibold">Property Details</h2>
+              </div>
+              <div className="w-1/2 flex items-baseline justify-end">
+                <button
+                  // onClick={() => }
+                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  title="Edit Details"
+                >
+                  <svg 
+                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="font-medium">Property Type</label>
@@ -297,7 +403,33 @@ const Property = () => {
 
           {/* Rooms */}
           <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Rooms</h2>
+            <div className="flex mb-2">
+              <div className="w-1/2 flex items-start justify-between">
+                <h2 className="mb-2 text-xl font-semibold">Rooms</h2>
+              </div>
+              <div className="w-1/2 flex items-baseline justify-end">
+                <button
+                  // onClick={() => }
+                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  title="Edit Rooms"
+                >
+                  <svg 
+                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="font-medium">Bedrooms</label>
@@ -316,7 +448,33 @@ const Property = () => {
 
           {/* Features */}
           <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Features</h2>
+            <div className="flex mb-2">
+              <div className="w-1/2 flex items-start justify-between">
+                <h2 className="mb-2 text-xl font-semibold">Features</h2>
+              </div>
+              <div className="w-1/2 flex items-baseline justify-end">
+                <button
+                    // onClick={() => }
+                    className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                    title="Edit Features"
+                  >
+                  <svg 
+                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                    />
+                  </svg>
+                </button> 
+              </div>
+            </div>
+            
             <div className="grid gap-6">
               {property?.features.interior.length ? (
                 <div>
@@ -348,7 +506,33 @@ const Property = () => {
 
           {/* Image Gallery */}
           <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Property Images</h2>
+            <div className="flex mb-2">
+              <div className="w-1/2 flex items-start justify-between">
+                <h2 className="mb-2 text-xl font-semibold">Property Images</h2>
+              </div>
+              <div className="w-1/2 flex items-baseline justify-end">
+              <button
+                onClick={() => {}}
+                className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                title="Edit Gallery"
+              >
+                <svg 
+                  className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                </svg>
+              </button>
+              </div>
+            </div>
+            
             {images.length > 0 ? (
               <ImageGallery
                 propertyId={id || ''}

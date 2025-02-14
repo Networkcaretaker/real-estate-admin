@@ -14,48 +14,53 @@ import {
   QueryDocumentSnapshot 
 } from '@firebase/firestore';
 
-import type { Property, PropertyImage } from '../../types/property';
+import type { Property, PropertyImage, SortConfig, SortDirection } from '../../types/property';
 import { getStorage, ref, getDownloadURL, deleteObject } from '@firebase/storage';
 
 const storage = getStorage();
 const PROPERTIES_PER_PAGE = 10;
 
 export const propertyService = {
-    async getProperties(lastVisible?: QueryDocumentSnapshot<DocumentData> | null) {
+  async getProperties(
+      lastVisible?: QueryDocumentSnapshot<DocumentData> | null,
+      sortConfig: SortConfig = { field: 'updated_at', direction: 'desc' }
+    ) {
       try {
-        console.log('Starting property fetch...');
-  
+        console.log('Starting property fetch...', { sortConfig });
+
+        // Create base query
         let q = query(
           collection(db, 'properties'),
-          orderBy('updated_at', 'desc'),
+          orderBy(sortConfig.field, sortConfig.direction),
           limit(PROPERTIES_PER_PAGE)
         );
-  
+
+        // Add pagination if lastVisible exists
         if (lastVisible) {
           q = query(
             collection(db, 'properties'),
-            orderBy('updated_at', 'desc'),
+            orderBy(sortConfig.field, sortConfig.direction),
             startAfter(lastVisible),
             limit(PROPERTIES_PER_PAGE)
           );
         }
-  
+
         const snapshot = await getDocs(q);
         console.log('Firestore snapshot:', {
           empty: snapshot.empty,
           size: snapshot.size,
           docs: snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
         });
-  
+
         const lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1] || null;
         
         const properties = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as Property[];
-  
+
         console.log('Processed properties:', properties);
-  
+
         return { 
           properties, 
           lastVisible: lastVisibleDoc 
