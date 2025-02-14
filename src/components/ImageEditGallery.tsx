@@ -4,6 +4,17 @@ import type { PropertyImage } from '../types/property';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import AIImageAssistant from './AIImageAssistant'; 
 
+import { 
+  StarFilledIcon, 
+  StarOutlineIcon, 
+  AIAnalysisIcon,
+  EditIcon,
+  TrashIcon,
+  CancelIcon,
+  ConfirmIcon,
+  IconButton 
+} from '../components/common/icons';
+
 interface ImageEditGalleryProps {
   propertyId: string;
   images: PropertyImage[];
@@ -13,7 +24,10 @@ interface ImageEditGalleryProps {
   onUpdateImage?: (imageId: string, updates: { title?: string; description?: string }) => Promise<void>;
   featureImageId?: string;
 }
-
+interface EditState {
+  title: string;
+  description: string;
+}
 const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
   propertyId,
   images,
@@ -25,6 +39,65 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState<PropertyImage | null>(null);
   const [aiModalImage, setAiModalImage] = useState<PropertyImage | null>(null); 
+  const [editingImageId, setEditingImageId] = useState<string | null>(null);
+  const [pendingEdits, setPendingEdits] = useState<Record<string, EditState>>({});
+
+  // Function to enter edit mode
+  const handleStartEditing = (image: PropertyImage) => {
+    setEditingImageId(image.id);
+    setPendingEdits(prev => ({
+      ...prev,
+      [image.id]: {
+        title: image.title || '',
+        description: image.description || ''
+      }
+    }));
+  };
+
+  // Function to handle field changes
+  const handleFieldChange = (imageId: string, field: keyof EditState, value: string) => {
+    setPendingEdits(prev => ({
+      ...prev,
+      [imageId]: {
+        ...prev[imageId],
+        [field]: value
+      }
+    }));
+  };
+
+  // Function to save changes
+  const handleSaveChanges = async (imageId: string) => {
+    const edits = pendingEdits[imageId];
+    if (!edits) return;
+
+    try {
+      await onUpdateImage?.(imageId, {
+        title: edits.title,
+        description: edits.description
+      });
+      
+      // Clear edit state after successful save
+      setEditingImageId(null);
+      setPendingEdits(prev => {
+        const newState = { ...prev };
+        delete newState[imageId];
+        return newState;
+      });
+    } catch (error) {
+      console.error('Failed to save changes:', error);
+      // Handle error (could add error state if needed)
+    }
+  };
+
+  // Function to cancel changes
+  const handleCancelEdits = (imageId: string) => {
+    setEditingImageId(null);
+    setPendingEdits(prev => {
+      const newState = { ...prev };
+      delete newState[imageId];
+      return newState;
+    });
+  };
 
   const handleDragEnd = async (result: any) => {
     if (!result.destination || !onReorder) return;
@@ -104,40 +177,64 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
                             </label>
                             <p className="text-sm text-gray-500">{image.filename}</p>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Title
-                            </label>
-                            <input
-                              type="text"
-                              value={image.title || ''}
-                              onChange={(e) => onUpdateImage?.(image.id, { title: e.target.value })}
-                              placeholder="Add a title for this image"
-                              className="w-full p-2 border rounded-md text-sm"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Description
-                            </label>
-                            <textarea
-                              value={image.description || ''}
-                              onChange={(e) => onUpdateImage?.(image.id, { description: e.target.value })}
-                              placeholder="Add a description for this image"
-                              className="w-full p-2 border rounded-md text-sm resize-none"
-                              rows={2}
-                            />
-                          </div>
+                          {editingImageId === image.id ? (
+                            // Edit Mode
+                            <>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Title
+                                </label>
+                                <input
+                                  type="text"
+                                  value={pendingEdits[image.id]?.title || ''}
+                                  onChange={(e) => handleFieldChange(image.id, 'title', e.target.value)}
+                                  placeholder="Add a title for this image"
+                                  className="w-full p-2 border rounded-md text-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Description
+                                </label>
+                                <textarea
+                                  value={pendingEdits[image.id]?.description || ''}
+                                  onChange={(e) => handleFieldChange(image.id, 'description', e.target.value)}
+                                  placeholder="Add a description for this image"
+                                  className="w-full p-2 border rounded-md text-sm resize-none"
+                                  rows={2}
+                                />
+                              </div>
+                            </>
+                          ) : (
+                            // View Mode
+                            <>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Title
+                                </label>
+                                <p className="text-sm">{image.title || 'No title'}</p>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Description
+                                </label>
+                                <p className="text-sm">{image.description || 'No description'}</p>
+                              </div>
+                            </>
+                          )}
                         </div>
 
                         {/* Actions */}
                         <div className="flex flex-col gap-2 justify-start items-end">
-                          {/* Feature Image Star */}
-                          <button
+                          {/* Feature Image Star - Always visible */}
+                          <IconButton
                             onClick={() => onFeatureImageSelect?.(image.id)}
+                            icon={featureImageId === image.id ? <StarFilledIcon /> : <StarOutlineIcon />}
+                            title={featureImageId === image.id ? 'Featured Image' : 'Set as Featured'}
                             className={`p-1 rounded-full hover:bg-gray-100 transition-colors ${
                               featureImageId === image.id ? 'text-yellow-400' : 'text-gray-400 hover:text-gray-600'
                             }`}
+
                             title={featureImageId === image.id ? 'Featured Image' : 'Set as Featured'}
                           >
                             {featureImageId === image.id ? (
@@ -183,20 +280,50 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
                             </svg>
                           </button>
 
-                          {/* Delete button */}
-                          <button
+                          {/* Edit button - Always visible */}
+                          <IconButton
+                            onClick={() => handleStartEditing(image)}
+                            icon={<EditIcon />}
+                            title="Edit info"
+                          />
+                          
+                          {/* Delete button - Always visible */}
+                          <IconButton
+
                             onClick={() => {
                               if (confirm('Are you sure you want to delete this image?')) {
                                 onImageDelete?.(image.id);
                               }
                             }}
-                            className="p-1 rounded-full text-red-500 hover:bg-gray-100 hover:text-red-700 transition-colors"
+                            icon={<TrashIcon />}
                             title="Delete image"
-                          >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                          />
+                          
+                          {/* Edit mode buttons - Only visible when editing */}
+                          {editingImageId === image.id && (
+                            <div className="flex flex-col gap-2 mt-1">
+                              {/* AI Analysis Button - Always visible */}
+                              <IconButton
+                                onClick={() => {/* AI analysis handler */}}
+                                icon={<AIAnalysisIcon />}
+                                title="AI Image Analysis"
+                              />
+                              {/* Cancel button */}
+                              <IconButton
+                                onClick={() => handleCancelEdits(image.id)}
+                                icon={<CancelIcon />}
+                                className="p-1 rounded-full text-red-500 hover:bg-gray-100 hover:text-red-700 transition-colors"
+                                title="Cancel"
+                              />
+                              {/* Confirm button */}
+                              <IconButton
+                                onClick={() => handleSaveChanges(image.id)}
+                                icon={<ConfirmIcon />}
+                                className="p-1 rounded-full text-green-500 hover:bg-gray-100 hover:text-green-700 transition-colors"
+                                title="Save Changes"
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

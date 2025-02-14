@@ -1,5 +1,4 @@
 // src/components/ImageGallery.tsx
-import { useState } from 'react';
 import type { PropertyImage } from '../types/property';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 

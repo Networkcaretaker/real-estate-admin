@@ -80,7 +80,7 @@ const Property = () => {
   const handleReorder = async (imageId: string, newOrder: number) => {
     try {
       if (!id) return;
-      setLoading(true);
+      setLoading(false);
       
       // Update the order of all images
       const updates = images.map((image, index) => {
@@ -192,21 +192,12 @@ const Property = () => {
 
   return (
     <>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">
-            {property?.title ? `Manage Images: ${property.id} | ${property.title}` : 'Manage Property Images'}
+            {property?.title ? `${property.id} | ${property.title}` : 'Manage Property Images'}
           </h1>
           <div className="flex gap-4">
-            <select
-              value={property?.website_status || 'Disabled'}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              disabled={saving}
-              className="rounded border p-2"
-            >
-              <option value="Disabled">Disabled</option>
-              <option value="Active">Active</option>
-            </select>
             <button
               onClick={() => navigate(`/properties/${id}/details`)}
               className="rounded bg-blue-100 px-4 py-2 hover:bg-blue-200"
