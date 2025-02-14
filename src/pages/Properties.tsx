@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { propertyService } from '../services/firebase/properties';
-import type { Property, PropertyImage, SortConfig, SortDirection } from '../types/property';
+import type { Property, SortConfig, SortDirection } from '../types/property';
 import { QueryDocumentSnapshot, DocumentData } from '@firebase/firestore';
+import { 
+  TableListIcon, 
+  TableCardIcon,
+  TableDetailedIcon, 
+  IconButton 
+} from '../components/common/icons';
 
 interface PropertyWithFeatureImage extends Property {
   featureImageUrl?: string | null;
@@ -140,110 +146,119 @@ const Properties = () => {
       {/* Sort Controls */}
       <div className="mb-4 bg-white rounded-lg shadow p-4">
         <div className="flex items-center gap-4 justify-center">
-          {/* Search input */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Reference:</label>
-            <input
-              type="text"
-              placeholder="Search properties..."
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-              disabled={loading}
-            />
-          </div>
 
-          {/* Filters */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Type:</label>
-            <select
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm w-24"
-              disabled={loading}
-            >
-              <option value="">All</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Municipality:</label>
-            <select
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm w-24"
-              disabled={loading}
-            >
-              <option value="">All</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Town:</label>
-            <select
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm w-24" 
-              disabled={loading}
-            >
-              <option value="">All</option>
-            </select>
-          </div>
-
-          {/* Filter Price min/max */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Price:</label>
-            <input
-              type="number"
-              placeholder="Min"
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm w-32"
-              disabled={loading}
-            />
-            <input
-              type="number"
-              placeholder="Max"
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm w-32"
-              disabled={loading}
-            />
-          </div>
-
-          {/* Sort by dropdown */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Sort by:</label>
-            <select
-              value={sortConfig.field}
-              onChange={(e) => handleSort(e.target.value, sortConfig.direction)}
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-              disabled={loading}
-            >
-              <option value="updated_at">Updated</option>
-              <option value="property_id">Reference</option>
-              <option value="title">Title</option>
-              <option value="price">Price</option>
-              <option value="website_status">Status</option>
-            </select>
-          </div>
-
-          {/* Order dropdown */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Order:</label>
-            <select
-              value={sortConfig.direction}
-              onChange={(e) => handleSort(sortConfig.field, e.target.value as SortDirection)}
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-              disabled={loading}
-            >
-              <option value="desc">Desc</option>
-              <option value="asc">Asc</option>
-            </select>
-          </div>
-
-          {/* Update Filter Button */}
-          <div className="flex items-center gap-2">
-            <button 
-              className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
-              disabled={loading}
-            >
-              Update
-            </button>
-          </div>
-
-
-          {loading && (
-            <div className="text-sm text-gray-500">
-              Updating...
+          <div className="flex w-3/4">
+            {/* Search input */}
+            <div className="flex gap-2 px-2">
+              <label className="text-sm font-medium text-gray-700">Reference:</label>
+              <input
+                type="text"
+                placeholder="Search properties..."
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
+                disabled={loading}
+              />
             </div>
-          )}
+
+            {/* Filters */}
+            <div className="flex gap-2 px-2">
+              <label className="text-sm font-medium text-gray-700">Type:</label>
+              <select
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
+                disabled={loading}
+              >
+                <option value="">All</option>
+              </select>
+            </div>
+            <div className="flex gap-2 px-2">
+              <label className="text-sm font-medium text-gray-700">Municipality:</label>
+              <select
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
+                disabled={loading}
+              >
+                <option value="">All</option>
+              </select>
+            </div>
+            <div className="flex gap-2 px-2">
+              <label className="text-sm font-medium text-gray-700">Town:</label>
+              <select
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24" 
+                disabled={loading}
+              >
+                <option value="">All</option>
+              </select>
+            </div>
+
+            {/* Filter Price min/max */}
+            <div className="flex gap-2 px-2">
+              <label className="text-sm font-medium text-gray-700">Price:</label>
+              <input
+                type="number"
+                placeholder="Min"
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
+                disabled={loading}
+              />
+              <input
+                type="number"
+                placeholder="Max"
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="flex w-1/4 items-center">
+          <div className="flex w-1/4 justify-end">
+            <div className="flex gap-2">
+              <IconButton
+                icon={<TableListIcon />}
+                onClick={() => {}}
+                title="List View"
+              />
+              <IconButton
+                icon={<TableDetailedIcon />}
+                onClick={() => {}}
+                title="Action View"
+              />
+              <IconButton
+                icon={<TableCardIcon />}
+                onClick={() => {}}
+                title="Card View"
+              />
+            </div>
+          </div>
+          <div className="flex w-3/4 justify-end items-end">
+            {/* Sort by dropdown */}
+            <div className="flex gap-2 items-center">
+              <label className="text-sm font-medium text-gray-700">Sort by:</label>
+              <select
+                value={sortConfig.field}
+                onChange={(e) => handleSort(e.target.value, sortConfig.direction)}
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs"
+                disabled={loading}
+              >
+                <option value="updated_at">Updated</option>
+                <option value="property_id">Reference</option>
+                <option value="title">Title</option>
+                <option value="price">Price</option>
+                <option value="website_status">Status</option>
+              </select>
+            </div>
+
+            {/* Order dropdown */}
+            <div className="flex gap-2">
+              <label className="text-sm font-medium text-gray-700">Order:</label>
+              <select
+                value={sortConfig.direction}
+                onChange={(e) => handleSort(sortConfig.field, e.target.value as SortDirection)}
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs"
+                disabled={loading}
+              >
+                <option value="desc">Desc</option>
+                <option value="asc">Asc</option>
+              </select>
+            </div>
+          </div>
+          </div>
         </div>
       </div>
       <div className="overflow-x-auto bg-white rounded-lg shadow">

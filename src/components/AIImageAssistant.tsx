@@ -92,16 +92,15 @@ export const AIImageAssistant: React.FC<AIImageAssistantProps> = ({
 
   const handleApplyResponse = async () => {
     if (!selectedResponse) return;
-
     try {
-      await onUpdateImage(image.id, {
+      onUpdateImage(image.id, {
         title: selectedResponse.image_title,
         description: selectedResponse.image_description
       });
       onClose();
     } catch (err) {
       setError('Failed to update image details');
-    }
+    } 
   };
 
   if (!isOpen) return null;

@@ -14,7 +14,7 @@ import {
   QueryDocumentSnapshot 
 } from '@firebase/firestore';
 
-import type { Property, PropertyImage, SortConfig, SortDirection } from '../../types/property';
+import type { Property, PropertyImage, SortConfig } from '../../types/property';
 import { getStorage, ref, getDownloadURL, deleteObject } from '@firebase/storage';
 import type { AIMetadata, AIResponseSet } from '../../types/ai';
 
