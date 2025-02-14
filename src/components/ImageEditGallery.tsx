@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import type { PropertyImage } from '../types/property';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import AIImageAssistant from './AIImageAssistant'; 
 
 interface ImageEditGalleryProps {
   propertyId: string;
@@ -14,6 +15,7 @@ interface ImageEditGalleryProps {
 }
 
 const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
+  propertyId,
   images,
   onFeatureImageSelect,
   onImageDelete,
@@ -22,6 +24,7 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
   featureImageId
 }) => {
   const [selectedImage, setSelectedImage] = useState<PropertyImage | null>(null);
+  const [aiModalImage, setAiModalImage] = useState<PropertyImage | null>(null); 
 
   const handleDragEnd = async (result: any) => {
     if (!result.destination || !onReorder) return;
@@ -166,17 +169,17 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
 
                           {/* AI Analysis Button */}
                           <button
-                            onClick={() => {}} // placeholder for future functionality
+                            onClick={() => setAiModalImage(image)}
                             className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                             title="AI Image Analysis"
                           >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round" 
-                              strokeWidth={2} 
-                              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-                            />
+                              <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                              />
                             </svg>
                           </button>
 
@@ -229,6 +232,16 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
             </button>
           </div>
         </div>
+      )}
+      {/* AI Image Assistant Modal */}
+      {aiModalImage && onUpdateImage && (
+        <AIImageAssistant
+          isOpen={!!aiModalImage}
+          onClose={() => setAiModalImage(null)}
+          propertyId={propertyId}
+          image={aiModalImage}
+          onUpdateImage={onUpdateImage}
+        />
       )}
     </>
   );
