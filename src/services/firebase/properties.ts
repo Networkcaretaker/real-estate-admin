@@ -16,6 +16,7 @@ import {
 
 import type { Property, PropertyImage, SortConfig, SortDirection } from '../../types/property';
 import { getStorage, ref, getDownloadURL, deleteObject } from '@firebase/storage';
+import type { AIMetadata, AIResponseSet } from '../../types/ai';
 
 const storage = getStorage();
 const PROPERTIES_PER_PAGE = 10;
@@ -121,7 +122,6 @@ export const propertyService = {
         throw error;
       }
     },
-  
     async getPropertyImages(propertyId: string): Promise<PropertyImage[]> {
       try {
         const propertyRef = doc(db, 'properties', propertyId);
@@ -170,7 +170,6 @@ export const propertyService = {
         throw error;
       }
     },
-  
     async setFeatureImage(propertyId: string, imageId: string): Promise<void> {
       try {
         const propertyRef = doc(db, 'properties', propertyId);
@@ -232,4 +231,59 @@ export const propertyService = {
         throw error;
       }
     },
+    // Fetch AI metadata for a specific image
+    async getImageAIMetadata(propertyId: string, imageId: string): Promise<AIMetadata | null> {
+      try {
+        const propertyRef = doc(db, 'properties', propertyId);
+        const imageRef = doc(collection(propertyRef, 'images'), imageId);
+        const imageDoc = await getDoc(imageRef);
+
+        if (!imageDoc.exists()) {
+          throw new Error('Image not found');
+        }
+
+        const data = imageDoc.data();
+        return data.ai_meta || null;
+      } catch (error) {
+        console.error('Error fetching AI metadata:', error);
+        throw error;
+      }
+    },
+
+    // Update AI metadata with new response while maintaining history
+    async updateImageAIMetadata(
+      propertyId: string, 
+      imageId: string, 
+      newResponse: AIResponseSet
+    ): Promise<void> {
+      try {
+        const propertyRef = doc(db, 'properties', propertyId);
+        const imageRef = doc(collection(propertyRef, 'images'), imageId);
+        const imageDoc = await getDoc(imageRef);
+
+        if (!imageDoc.exists()) {
+          throw new Error('Image not found');
+        }
+
+        // Get current metadata and create new metadata object
+        const currentData = imageDoc.data();
+        const currentMeta = currentData.ai_meta as AIMetadata | undefined;
+        
+        const newMeta: AIMetadata = {
+          last_generated: new Date().toISOString(),
+          responses: [
+            newResponse,
+            ...(currentMeta?.responses || []).slice(0, 2) // Keep only last 2 old responses
+          ]
+        };
+
+        // Update the document with new metadata
+        await updateDoc(imageRef, {
+          ai_meta: newMeta
+        });
+      } catch (error) {
+        console.error('Error updating AI metadata:', error);
+        throw error;
+      }
+    }
   };
