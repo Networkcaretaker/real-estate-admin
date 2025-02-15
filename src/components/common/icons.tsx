@@ -127,6 +127,59 @@ export const CancelIcon: React.FC<IconProps> = ({ className = "w-6 h-6", size })
     </svg>
 );
 
+export const TableListIcon: React.FC<IconProps> = ({ className = "w-4 h-4", size }) => (
+    <svg 
+        className={className} 
+        width={size} 
+        height={size} 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+    >
+        <path 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        strokeWidth={2} 
+        d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" 
+        />
+    </svg>
+);
+
+// Table Views
+export const TableDetailedIcon: React.FC<IconProps> = ({ className = "w-4 h-4", size }) => (
+    <svg 
+        className={className} 
+        width={size} 
+        height={size} 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+    >
+        <rect x="2" y="3" width="8" height="8" rx="1" strokeWidth={2} />
+        <line x1="12" y1="6" x2="22" y2="6" strokeWidth={2} />
+        <line x1="12" y1="10" x2="22" y2="10" strokeWidth={2} />
+        <rect x="2" y="13" width="8" height="8" rx="1" strokeWidth={2} />
+        <line x1="12" y1="16" x2="22" y2="16" strokeWidth={2} />
+        <line x1="12" y1="20" x2="22" y2="20" strokeWidth={2} />
+    </svg>
+);
+export const TableCardIcon: React.FC<IconProps> = ({ className = "w-4 h-4", size }) => (
+    <svg 
+        className={className} 
+        width={size} 
+        height={size} 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+    >
+        <path 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        strokeWidth={2} 
+        d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" 
+        />
+    </svg>
+);
 export const ConfirmIcon: React.FC<IconProps> = ({ className = "w-6 h-6", size }) => (
     <svg 
         className={className} 

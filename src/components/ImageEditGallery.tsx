@@ -200,8 +200,8 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
                                   value={pendingEdits[image.id]?.description || ''}
                                   onChange={(e) => handleFieldChange(image.id, 'description', e.target.value)}
                                   placeholder="Add a description for this image"
-                                  className="w-full p-2 border rounded-md text-sm resize-none"
-                                  rows={2}
+                                  className="w-full h-24 p-2 border rounded-md text-sm resize-none"
+                                  rows={4}
                                 />
                               </div>
                             </>
@@ -234,62 +234,24 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
                             className={`p-1 rounded-full hover:bg-gray-100 transition-colors ${
                               featureImageId === image.id ? 'text-yellow-400' : 'text-gray-400 hover:text-gray-600'
                             }`}
+                          />
 
-                            title={featureImageId === image.id ? 'Featured Image' : 'Set as Featured'}
-                          >
-                            {featureImageId === image.id ? (
-                              // Filled star for featured image
-                              <svg 
-                                className="w-6 h-6" 
-                                fill="currentColor" 
-                                viewBox="0 0 24 24"
-                              >
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                              </svg>
-                            ) : (
-                              // Outline star for non-featured
-                              <svg 
-                                className="w-6 h-6" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                              >
-                                <path 
-                                  strokeLinecap="round" 
-                                  strokeLinejoin="round" 
-                                  strokeWidth={2} 
-                                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                                />
-                              </svg>
-                            )}
-                          </button>
-
-                          {/* AI Analysis Button */}
-                          <button
+                          {/* AI Analysis Button - Always visible */}
+                          <IconButton
                             onClick={() => setAiModalImage(image)}
-                            className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                            title="AI Image Analysis"
-                          >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth={2} 
-                                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                              />
-                            </svg>
-                          </button>
-
+                            icon={<AIAnalysisIcon />}
+                            title="AI Image Assistant"
+                          />
+                          
                           {/* Edit button - Always visible */}
                           <IconButton
                             onClick={() => handleStartEditing(image)}
                             icon={<EditIcon />}
                             title="Edit info"
                           />
-                          
+
                           {/* Delete button - Always visible */}
                           <IconButton
-
                             onClick={() => {
                               if (confirm('Are you sure you want to delete this image?')) {
                                 onImageDelete?.(image.id);
@@ -302,12 +264,7 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
                           {/* Edit mode buttons - Only visible when editing */}
                           {editingImageId === image.id && (
                             <div className="flex flex-col gap-2 mt-1">
-                              {/* AI Analysis Button - Always visible */}
-                              <IconButton
-                                onClick={() => {/* AI analysis handler */}}
-                                icon={<AIAnalysisIcon />}
-                                title="AI Image Analysis"
-                              />
+                              
                               {/* Cancel button */}
                               <IconButton
                                 onClick={() => handleCancelEdits(image.id)}
