@@ -10,8 +10,6 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const aiService = {
   async analyzeImage(request: AIAnalysisRequest): Promise<AIAnalysisResponse> {
     try {
-      console.log('Sending AI analysis request:', request);
-
       const response = await fetch(`${API_BASE_URL}/api/ai/analyze-image`, {
         method: 'POST',
         headers: {
@@ -20,16 +18,12 @@ export const aiService = {
         body: JSON.stringify(request)
       });
 
-      console.log('Response status:', response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error response:', errorText);
         throw new Error(errorText || 'Failed to analyze image');
       }
 
       const result = await response.json();
-      console.log('AI Analysis result:', result);
       return result;
 
     } catch (error) {
