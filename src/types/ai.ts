@@ -8,14 +8,9 @@ export interface AIResponse {
   image_description: string;
 }
 
-export interface AIResponseSet {
-  timestamp: string;
-  versions: AIResponse[];
-}
-
 export interface AIMetadata {
   last_generated: string;
-  responses: AIResponseSet[];
+  responses: AIResponse[];
 }
 
 export interface AIAnalysisRequest {
@@ -31,3 +26,4 @@ export interface AIAnalysisResponse {
   };
   message?: string;
 }
+

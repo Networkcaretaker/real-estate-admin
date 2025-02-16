@@ -16,7 +16,7 @@ import {
 
 import type { Property, PropertyImage, SortConfig } from '../../types/property';
 import { getStorage, ref, getDownloadURL, deleteObject } from '@firebase/storage';
-import type { AIMetadata, AIResponseSet } from '../../types/ai';
+import type { AIMetadata, AIResponse } from '../../types/ai';
 
 const storage = getStorage();
 const PROPERTIES_PER_PAGE = 10;
@@ -237,11 +237,11 @@ export const propertyService = {
         const propertyRef = doc(db, 'properties', propertyId);
         const imageRef = doc(collection(propertyRef, 'images'), imageId);
         const imageDoc = await getDoc(imageRef);
-
+    
         if (!imageDoc.exists()) {
           throw new Error('Image not found');
         }
-
+    
         const data = imageDoc.data();
         return data.ai_meta || null;
       } catch (error) {
@@ -254,29 +254,27 @@ export const propertyService = {
     async updateImageAIMetadata(
       propertyId: string, 
       imageId: string, 
-      newResponse: AIResponseSet
+      newResponses: AIResponse[]
     ): Promise<void> {
       try {
         const propertyRef = doc(db, 'properties', propertyId);
         const imageRef = doc(collection(propertyRef, 'images'), imageId);
         const imageDoc = await getDoc(imageRef);
-
+    
         if (!imageDoc.exists()) {
           throw new Error('Image not found');
         }
-
-        // Get current metadata and create new metadata object
-        const currentData = imageDoc.data();
-        const currentMeta = currentData.ai_meta as AIMetadata | undefined;
-        
+    
+        // Create new metadata object
         const newMeta: AIMetadata = {
           last_generated: new Date().toISOString(),
           responses: [
-            newResponse,
-            ...(currentMeta?.responses || []).slice(0, 2) // Keep only last 2 old responses
-          ]
+            ...newResponses,
+            // Optionally, keep some old responses
+            ...(imageDoc.data().ai_meta?.responses || []).slice(0, 2)
+          ].slice(0, 3) // Limit to 3 total responses
         };
-
+    
         // Update the document with new metadata
         await updateDoc(imageRef, {
           ai_meta: newMeta
@@ -285,5 +283,5 @@ export const propertyService = {
         console.error('Error updating AI metadata:', error);
         throw error;
       }
-    }
+    },
   };

@@ -9,10 +9,10 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
 
   // Redirect if already logged in
-  if (currentUser) {
+  if (user) {
     navigate('/');
     return null;
   }
@@ -33,9 +33,13 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <h2>Admin Login</h2>
+    <div className="container mx-auto flex justify-center items-center h-screen">
+      <div className="container w-1/4">
+      <div className="items-center place-items-center justify-center flex flex-col">
+        <img src="/house.svg" alt="Real Estate" className="h-20 w-auto" />
+        <span className="text-5xl font-bold px-4">REAL ESTATE</span>
+      </div>
+      <div className="h-8"></div>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -58,7 +62,7 @@ const Login = () => {
               required
             />
           </div>
-          <button type="submit" disabled={loading}>
+          <button type="submit" disabled={loading} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 my-2 rounded w-full">
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>

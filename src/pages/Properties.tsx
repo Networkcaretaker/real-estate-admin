@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { propertyService } from '../services/firebase/properties';
 import type { Property, SortConfig, SortDirection } from '../types/property';
 import { QueryDocumentSnapshot, DocumentData } from '@firebase/firestore';
+// import Header from '../components/layout/Header';
+
 import { 
   TableListIcon, 
   TableCardIcon,
@@ -141,8 +143,8 @@ const Properties = () => {
     );
   }
 
-  return (
-    <div className="container mx-auto px-2 py-2">
+  return (  
+    <div className="mx-auto">
       {/* Sort Controls */}
       <div className="mb-4 bg-white rounded-lg shadow p-4">
         <div className="flex items-center gap-4 justify-center">
@@ -150,7 +152,7 @@ const Properties = () => {
           <div className="flex w-3/4">
             {/* Search input */}
             <div className="flex gap-2 px-2">
-              <label className="text-sm font-medium text-gray-700">Reference:</label>
+              <label className="text-sm font-medium text-gray-700">Ref:</label>
               <input
                 type="text"
                 placeholder="Search properties..."
@@ -168,6 +170,17 @@ const Properties = () => {
               >
                 <option value="">All</option>
               </select>
+            </div>
+            <div className="flex gap-2 px-2">
+              <label className="text-sm font-medium text-gray-700">Status:</label>
+              <select
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
+                disabled={loading}
+              >
+                <option value="">All</option>
+                <option value="">Active</option>
+                <option value="">Disabled</option>
+                </select>
             </div>
             <div className="flex gap-2 px-2">
               <label className="text-sm font-medium text-gray-700">Municipality:</label>
@@ -268,8 +281,8 @@ const Properties = () => {
               <th className="w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
@@ -311,14 +324,14 @@ const Properties = () => {
                   <div className="text-sm text-gray-900">{property.title || 'Untitled'}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
-                  <div className="text-sm text-gray-900">${property.price?.toLocaleString() || 'N/A'}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
                   <div className="text-sm text-gray-900">
                     {property.location ? (
                       `${property.location.town}, ${property.location.municipality}`
                     ) : 'N/A'}
                   </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                  <div className="text-sm text-gray-900">${property.price?.toLocaleString() || 'N/A'}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap justify-center">
 

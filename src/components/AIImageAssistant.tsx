@@ -45,8 +45,8 @@ export const AIImageAssistant: React.FC<AIImageAssistantProps> = ({
 
   // Load existing responses on mount
   useEffect(() => {
-    if (aiMetadata?.responses?.[0]) {
-      setResponses(aiMetadata.responses[0].versions);
+    if (aiMetadata?.responses) {
+      setResponses(aiMetadata.responses);
     }
   }, [aiMetadata]);
 
@@ -67,21 +67,22 @@ export const AIImageAssistant: React.FC<AIImageAssistantProps> = ({
       setError('Please select at least one version');
       return;
     }
-
+  
     setIsLoading(true);
     setError(null);
-
+  
     try {
       const result = await aiService.analyzeImage({
         property_id: propertyId,
         image_id: image.id,
         versions: selectedVersions
       });
-
+  
       if (result.status === 'error' || !result.data) {
         throw new Error(result.message || 'Failed to analyze image');
       }
-
+  
+      // Simply update the local state with the returned responses
       setResponses(result.data.versions);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to analyze image');
