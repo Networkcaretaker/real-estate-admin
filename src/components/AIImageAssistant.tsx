@@ -1,6 +1,6 @@
 // src/components/AIImageAssistant.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AIVersion, AIResponse, AIMetadata } from '../types/ai';
 import { aiService } from '../services/ai';
 import { PropertyImage } from '../types/property';
@@ -12,6 +12,7 @@ interface AIImageAssistantProps {
   image: PropertyImage;
   onUpdateImage: (imageId: string, updates: { title?: string; description?: string }) => Promise<void>;
   aiMetadata?: AIMetadata;
+  onLoadAIMetadata?: () => void;
 }
 
 const AVAILABLE_VERSIONS: { value: AIVersion; label: string }[] = [
@@ -35,6 +36,7 @@ export const AIImageAssistant: React.FC<AIImageAssistantProps> = ({
   propertyId,
   image,
   onUpdateImage,
+  onLoadAIMetadata,
   aiMetadata
 }) => {
   const [selectedVersions, setSelectedVersions] = useState<AIVersion[]>([]);
@@ -42,12 +44,41 @@ export const AIImageAssistant: React.FC<AIImageAssistantProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [responses, setResponses] = useState<AIResponse[]>([]);
   const [selectedResponse, setSelectedResponse] = useState<AIResponse | null>(null);
+  const [showSavedResponses, setShowSavedResponses] = useState(false);
+  const [savedResponses, setSavedResponses] = useState<AIResponse[]>([]);
 
-  // Load existing responses on mount
+  // Use useCallback to memoize the metadata loading
+  const memoizedLoadAIMetadata = useCallback(() => {
+    onLoadAIMetadata?.();
+  }, [onLoadAIMetadata]);
+
+  // Only load metadata when the component mounts or image changes
   useEffect(() => {
-    if (aiMetadata?.responses) {
-      setResponses(aiMetadata.responses);
-    }
+    memoizedLoadAIMetadata();
+  }, [memoizedLoadAIMetadata]);
+
+  // Memoize the responses processing
+  useEffect(() => {
+    const processResponses = () => {
+      console.log('AIImageAssistant - aiMetadata received:', aiMetadata);
+      
+      if (aiMetadata?.responses?.length) {
+        console.log('Responses found:', aiMetadata.responses);
+        setSavedResponses(prevResponses => {
+          // Only update if the responses are different
+          const newResponses = aiMetadata.responses;
+          if (JSON.stringify(prevResponses) !== JSON.stringify(newResponses)) {
+            return newResponses;
+          }
+          return prevResponses;
+        });
+      } else {
+        console.log('No responses found in aiMetadata');
+        setSavedResponses([]);
+      }
+    };
+
+    processResponses();
   }, [aiMetadata]);
 
   const handleVersionToggle = (version: AIVersion) => {
@@ -102,6 +133,59 @@ export const AIImageAssistant: React.FC<AIImageAssistantProps> = ({
     } catch (err) {
       setError('Failed to update image details');
     } 
+  };
+
+  const renderSavedResponsesSection = () => {
+    console.log("savedResponses", savedResponses);
+    if (!savedResponses.length) return null;
+
+    return (
+      <div className="mb-4">
+        <div className="flex justify-between items-center mb-2">
+          <h4 className="text-sm font-medium text-gray-700">Saved Responses: {savedResponses.length}</h4>
+          <button
+            onClick={() => setShowSavedResponses(!showSavedResponses)}
+            className="text-blue-500 hover:text-blue-600 text-sm"
+          >
+            {showSavedResponses ? 'Hide' : 'View'} Saved Responses
+          </button>
+        </div>
+        {showSavedResponses && (
+          <div className="space-y-4">
+            {savedResponses.map((response, index) => (
+              <div
+                key={index}
+                className={`p-3 rounded border ${
+                  selectedResponse === response
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200'
+                }`}
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">{response.version}</span>
+                  <button
+                    onClick={() => setSelectedResponse(response)}
+                    className={`px-3 py-1 rounded text-sm ${
+                      selectedResponse === response
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                    }`}
+                  >
+                    Select
+                  </button>
+                </div>
+                <div className="text-sm mb-1">
+                  <strong>Title:</strong> {response.image_title}
+                </div>
+                <div className="text-sm">
+                  <strong>Description:</strong> {response.image_description}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   if (!isOpen) return null;
@@ -224,6 +308,8 @@ export const AIImageAssistant: React.FC<AIImageAssistantProps> = ({
                 </div>
               </div>
             )}
+            {/* New Saved Responses Section */}
+            {renderSavedResponsesSection()}
           </div>
 
           {/* Footer */}

@@ -1,8 +1,10 @@
 // src/components/ImageEditGallery.tsx
 import { useState } from 'react';
 import type { PropertyImage } from '../types/property';
+import { AIMetadata } from '../types/ai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import AIImageAssistant from './AIImageAssistant'; 
+import { propertyService } from '../services/firebase/properties';
 
 import { 
   StarFilledIcon, 
@@ -41,6 +43,7 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
   const [aiModalImage, setAiModalImage] = useState<PropertyImage | null>(null); 
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
   const [pendingEdits, setPendingEdits] = useState<Record<string, EditState>>({});
+  const [aiMetadata, setAiMetadata] = useState<AIMetadata | undefined>(undefined);
 
   // Function to enter edit mode
   const handleStartEditing = (image: PropertyImage) => {
@@ -97,6 +100,27 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
       delete newState[imageId];
       return newState;
     });
+  };
+
+  // Function to load AI metadata
+  const loadAIMetadata = async (propertyId: string, imageId: string) => {
+    try {
+      // Use the existing service method
+      console.log('Attempting to load AI Metadata:', { propertyId, imageId });
+      const metadata = await propertyService.getImageAIMetadata(propertyId, imageId);
+      
+      // Only update if metadata exists and is different
+      if (metadata) {
+        setAiMetadata(prevMetadata => 
+          JSON.stringify(prevMetadata) !== JSON.stringify(metadata) ? metadata : prevMetadata
+        );
+      } else {
+        setAiMetadata(undefined);
+      }
+    } catch (error) {
+      console.error('Failed to load AI metadata:', error);
+      setAiMetadata(undefined);
+    }
   };
 
   const handleDragEnd = async (result: any) => {
@@ -321,12 +345,17 @@ const ImageEditGallery: React.FC<ImageEditGalleryProps> = ({
       {aiModalImage && onUpdateImage && (
         <AIImageAssistant
           isOpen={!!aiModalImage}
-          onClose={() => setAiModalImage(null)}
+          onClose={() => {
+            setAiModalImage(null);
+            setAiMetadata(undefined);  // Reset to undefined, not null
+          }}
           propertyId={propertyId}
           image={aiModalImage}
           onUpdateImage={onUpdateImage}
+          aiMetadata={aiMetadata}
+          onLoadAIMetadata={() => loadAIMetadata(propertyId, aiModalImage.id)}
         />
-      )}
+      )}  
     </>
   );
 };

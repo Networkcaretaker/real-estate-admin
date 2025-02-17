@@ -278,29 +278,29 @@ const Properties = () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12"></th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Reference</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-3/12">Title</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/12">Location</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Price</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Status</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {properties.map((property) => (
               <tr key={property.id} className="hover:bg-gray-50 items-center">
-                <td className="px-6 py-4 whitespace-nowrap" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 w-1/12" onClick={() => navigate(`/properties/${property.id}/details`)}>
                   {loadingImages[property.id] ? (
-                    <div className="w-32 h-32 bg-gray-100 animate-pulse rounded-lg" />
+                    <div className="w-8 h-8 bg-gray-100 animate-pulse rounded-lg" />
                   ) : property.featureImageUrl ? (
                     <img
                       src={property.featureImageUrl}
                       alt={property.title || 'Property'}
-                      className="w-16 h-16 object-cover rounded-lg"
+                      className="w-12 h-12 object-cover rounded-lg"
                     />
                   ) : (
-                    <div className="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-lg">
+                    <div className="w-12 h-12 bg-gray-100 flex items-center justify-center rounded-lg">
                       <svg 
                         className="w-6 h-6 text-gray-400" 
                         fill="none" 
@@ -317,23 +317,23 @@ const Properties = () => {
                     </div>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 cursor-pointer w-1/12" onClick={() => navigate(`/properties/${property.id}/details`)}>
                   <div className="text-sm text-gray-900">{property.property_id}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 w-2/12 cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
                   <div className="text-sm text-gray-900">{property.title || 'Untitled'}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 w-2/12 cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
                   <div className="text-sm text-gray-900">
                     {property.location ? (
                       `${property.location.town}, ${property.location.municipality}`
                     ) : 'N/A'}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 w-1/12 cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
                   <div className="text-sm text-gray-900">${property.price?.toLocaleString() || 'N/A'}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap justify-center">
+                <td className="px-6 py-4 w-1/12 justify-center text-center">
 
                   <button
                     onClick={() => {}}
@@ -344,7 +344,7 @@ const Properties = () => {
                     title={property.website_status === 'Active' ? 'Deactivate Property' : 'Activate Property'}
                   >
                     <svg 
-                      className="w-6 h-6 text-white cursor-pointer" 
+                      className="w-4 h-4 text-white cursor-pointer" 
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
@@ -361,14 +361,14 @@ const Properties = () => {
                   </button>
 
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td className="px-6 py-4 w-1/12 text-sm font-medium text-center">
                 <button
                     onClick={() => navigate(`/properties/${property.id}/edit`)}
                     className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                     title="Edit Property"
                   >
                     <svg 
-                      className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                      className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" 
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
@@ -387,7 +387,7 @@ const Properties = () => {
                     title="Manage Images"
                   >
                     <svg 
-                      className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                      className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" 
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
@@ -406,7 +406,7 @@ const Properties = () => {
                     title="Delete Property"
                   >
                     <svg 
-                      className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
+                      className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" 
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
