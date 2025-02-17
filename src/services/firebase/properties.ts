@@ -239,14 +239,14 @@ export const propertyService = {
         const imageDoc = await getDoc(imageRef);
     
         if (!imageDoc.exists()) {
-          throw new Error('Image not found');
+          return null;
         }
     
         const data = imageDoc.data();
         return data.ai_meta || null;
       } catch (error) {
         console.error('Error fetching AI metadata:', error);
-        throw error;
+        return null;
       }
     },
 

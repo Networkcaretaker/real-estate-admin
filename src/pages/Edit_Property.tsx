@@ -115,13 +115,21 @@ const Property = () => {
         </div>
 
         <div className="grid gap-6">
-          {/* Basic Details */}
           <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Basic Details</h2>
+            {/* Basic Details */}
+            <h2 className="mb-4 text-xl font-semibold">Edit Property</h2>
             <div className="grid gap-4">
+            <div>
+                <label className="font-medium">Reference</label>
+                <p>{property?.id}</p>
+              </div>
               <div>
                 <label className="font-medium">Title</label>
                 <p>{property?.title}</p>
+              </div>
+              <div>
+                <label className="font-medium">Excerpt</label>
+                <p>{property?.excerpt}</p>
               </div>
               <div>
                 <label className="font-medium">Price</label>
@@ -135,13 +143,11 @@ const Property = () => {
                 <p>{property?.description}</p>
               </div>
             </div>
-          </section>
 
-          {/* Location */}
-          <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Location</h2>
+            {/* Location */}
+            <div className="h-8"></div>
             <div className="grid gap-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <div>
                   <label className="font-medium">Town</label>
                   <p>{property?.location.town}</p>
@@ -160,12 +166,10 @@ const Property = () => {
                 </div>
               </div>
             </div>
-          </section>
 
-          {/* Property Details */}
-          <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Property Details</h2>
-            <div className="grid grid-cols-2 gap-4">
+            {/* Property Details */}
+            <div className="h-8"></div>
+            <div className="grid grid-cols-4 gap-4">
               <div>
                 <label className="font-medium">Property Type</label>
                 <p>{property?.details.property_type}</p>
@@ -183,12 +187,10 @@ const Property = () => {
                 <p>{property?.details.area_property} m²</p>
               </div>
             </div>
-          </section>
 
-          {/* Rooms */}
-          <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Rooms</h2>
-            <div className="grid grid-cols-3 gap-4">
+            {/* Rooms */}
+            <div className="h-8"></div>
+            <div className="grid grid-cols-4 gap-4">
               <div>
                 <label className="font-medium">Bedrooms</label>
                 <p>{property?.rooms.bedrooms}</p>
@@ -202,12 +204,10 @@ const Property = () => {
                 <p>{property?.rooms.total_rooms}</p>
               </div>
             </div>
-          </section>
 
-          {/* Features */}
-          <section className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-xl font-semibold">Features</h2>
-            <div className="grid gap-6">
+            {/* Features */}
+            <div className="h-8"></div>
+            <div className="grid grid-cols-2 gap-4">
               {property?.features.interior.length ? (
                 <div>
                   <h3 className="mb-2 font-medium">Interior Features</h3>

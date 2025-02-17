@@ -32,6 +32,8 @@ export interface PropertyFlags {
   reduced: boolean;
 }
 
+import { AIMetadata } from './ai'; 
+
 export interface PropertyImage {
   id: string;
   urls: {
@@ -43,6 +45,7 @@ export interface PropertyImage {
   title: string;
   description: string;
   order: number;
+  ai_meta: AIMetadata;
   created_at: string;
   updated_at: string;
 }
