@@ -1,7 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { propertyService } from '../services/firebase/properties';
-import type { Property } from '../types/property'; 
+import type { Property } from '../types/property';
+
+import { 
+  AIAnalysisIcon,
+  EditIcon,
+  CancelIcon,
+  ConfirmIcon,
+  IconButton 
+} from '../components/common/icons';
+
+interface EditState {
+  title: string;
+  excerpt: string;
+  description: string;
+}
 
 const Property = () => {
   const { id } = useParams();
@@ -10,6 +24,8 @@ const Property = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [pendingEdits, setPendingEdits] = useState<EditState | null>(null);
 
   // Define loadProperty function
   const loadProperty = async () => {
@@ -63,6 +79,55 @@ const Property = () => {
     }
   };
 
+  const handleStartEditing = () => {
+    if (!property) return;
+    
+    setIsEditing(true);
+    setPendingEdits({
+      title: property.title || '',
+      excerpt: property.excerpt || '',
+      description: property.description || ''
+    });
+  };
+
+  const handleFieldChange = (field: keyof EditState, value: string) => {
+    if (!pendingEdits) return;
+    
+    setPendingEdits({
+      ...pendingEdits,
+      [field]: value
+    });
+  };
+
+  const handleSaveChanges = async () => {
+    if (!property || !pendingEdits || !id) return;
+    
+    try {
+      setSaving(true);
+      await propertyService.updatePropertyDetails(id, pendingEdits);
+      
+      // Update local state
+      setProperty({
+        ...property,
+        ...pendingEdits
+      });
+      
+      // Clear edit state
+      setIsEditing(false);
+      setPendingEdits(null);
+    } catch (err) {
+      console.error('Error saving property details:', err);
+      setError('Failed to save property details');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelEdits = () => {
+    setIsEditing(false);
+    setPendingEdits(null);
+  };
+
   if (error) {
     return (
       <>
@@ -84,7 +149,7 @@ const Property = () => {
   }
 
   return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">
             {property?.title ? `${property.id} | ${property.title}` : 'Manage Property Images'}
@@ -100,10 +165,10 @@ const Property = () => {
               <option value="Active">Active</option>
             </select>
             <button
-              onClick={() => navigate(`/properties/${id}/images`)}
+              onClick={() => navigate(`/properties/${id}/details`)}
               className="rounded bg-blue-100 px-4 py-2 hover:bg-blue-200"
             >
-              Edit Images
+              View Property
             </button>
             <button
               onClick={() => navigate('/properties')}
@@ -116,20 +181,53 @@ const Property = () => {
 
         <div className="grid gap-6">
           <section className="rounded-lg border bg-white p-6">
+
             {/* Basic Details */}
-            <h2 className="mb-4 text-xl font-semibold">Edit Property</h2>
-            <div className="grid gap-4">
-            <div>
+            <div className="flex mb-2">
+              <div className="w-1/2 flex items-start justify-between">
+                <h2 className="mb-2 text-xl font-semibold">Edit Property</h2>
+              </div>
+              <div className="w-1/2 flex items-baseline justify-end gap-2">
+              {isEditing ? (
+                <>
+                  <IconButton
+                    onClick={handleSaveChanges}
+                    icon={<ConfirmIcon />}
+                    className="p-1 rounded-full text-green-500 hover:bg-gray-100 hover:text-green-700 transition-colors"
+                    title="Save Changes"
+                    disabled={saving}
+                  />
+                  <IconButton
+                    onClick={handleCancelEdits}
+                    icon={<CancelIcon />}
+                    className="p-1 rounded-full text-red-500 hover:bg-gray-100 hover:text-red-700 transition-colors"
+                    title="Cancel"
+                    disabled={saving}
+                  />
+                </>
+              ) : null}
+              <IconButton
+                onClick={() => {}}
+                icon={<AIAnalysisIcon />}
+                title="AI Property Assistant"
+                disabled={saving || isEditing}
+              />
+              <IconButton
+                onClick={handleStartEditing}
+                icon={<EditIcon />}
+                title="Edit info"
+                disabled={saving}
+              />
+            </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
                 <label className="font-medium">Reference</label>
-                <p>{property?.id}</p>
+                <p>{property?.id} | {property?.details.property_type} in {property?.location.town}</p>
               </div>
               <div>
-                <label className="font-medium">Title</label>
-                <p>{property?.title}</p>
-              </div>
-              <div>
-                <label className="font-medium">Excerpt</label>
-                <p>{property?.excerpt}</p>
+                <label className="font-medium">Location</label>
+                <p>{property?.location.town}, {property?.location.municipality}, {property?.location.postcode}, {property?.location.region}</p>
               </div>
               <div>
                 <label className="font-medium">Price</label>
@@ -138,38 +236,56 @@ const Property = () => {
                   currency: 'USD'
                 })}</p>
               </div>
-              <div>
-                <label className="font-medium">Description</label>
-                <p>{property?.description}</p>
-              </div>
             </div>
+            <div className="h-4"></div>
 
-            {/* Location */}
-            <div className="h-8"></div>
+            {/* Editable Fields */}
             <div className="grid gap-4">
-              <div className="grid grid-cols-4 gap-4">
-                <div>
-                  <label className="font-medium">Town</label>
-                  <p>{property?.location.town}</p>
-                </div>
-                <div>
-                  <label className="font-medium">Region</label>
-                  <p>{property?.location.region}</p>
-                </div>
-                <div>
-                  <label className="font-medium">Municipality</label>
-                  <p>{property?.location.municipality}</p>
-                </div>
-                <div>
-                  <label className="font-medium">Postcode</label>
-                  <p>{property?.location.postcode}</p>
-                </div>
+              <div>
+                <label className="block font-medium mb-1">Title</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={pendingEdits?.title || ''}
+                    onChange={(e) => handleFieldChange('title', e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                    disabled={saving}
+                  />
+                ) : (
+                  <p>{property?.title}</p>
+                )}
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Excerpt</label>
+                {isEditing ? (
+                  <textarea
+                    value={pendingEdits?.excerpt || ''}
+                    onChange={(e) => handleFieldChange('excerpt', e.target.value)}
+                    className="w-full p-2 border rounded-md h-24 resize-none"
+                    disabled={saving}
+                  />
+                ) : (
+                  <p>{property?.excerpt}</p>
+                )}
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Description</label>
+                {isEditing ? (
+                  <textarea
+                    value={pendingEdits?.description || ''}
+                    onChange={(e) => handleFieldChange('description', e.target.value)}
+                    className="w-full p-2 border rounded-md h-48 resize-none"
+                    disabled={saving}
+                  />
+                ) : (
+                  <p>{property?.description}</p>
+                )}
               </div>
             </div>
 
             {/* Property Details */}
-            <div className="h-8"></div>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="h-4"></div>
+            <div className="grid grid-cols-6 gap-4">
               <div>
                 <label className="font-medium">Property Type</label>
                 <p>{property?.details.property_type}</p>
@@ -186,11 +302,6 @@ const Property = () => {
                 <label className="font-medium">Property Area</label>
                 <p>{property?.details.area_property} m²</p>
               </div>
-            </div>
-
-            {/* Rooms */}
-            <div className="h-8"></div>
-            <div className="grid grid-cols-4 gap-4">
               <div>
                 <label className="font-medium">Bedrooms</label>
                 <p>{property?.rooms.bedrooms}</p>
@@ -199,14 +310,10 @@ const Property = () => {
                 <label className="font-medium">Bathrooms</label>
                 <p>{property?.rooms.bathrooms}</p>
               </div>
-              <div>
-                <label className="font-medium">Total Rooms</label>
-                <p>{property?.rooms.total_rooms}</p>
-              </div>
             </div>
 
             {/* Features */}
-            <div className="h-8"></div>
+            <div className="h-4"></div>
             <div className="grid grid-cols-2 gap-4">
               {property?.features.interior.length ? (
                 <div>

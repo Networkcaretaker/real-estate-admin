@@ -160,6 +160,18 @@ const Property = () => {
               <option value="Active">Active</option>
             </select>
             <button
+              onClick={() => navigate(`/properties/${id}/edit`)}
+              className="rounded bg-blue-100 px-4 py-2 hover:bg-blue-200"
+            >
+              Edit Property
+            </button>
+            <button
+              onClick={() => navigate(`/properties/${id}/images`)}
+              className="rounded bg-blue-100 px-4 py-2 hover:bg-blue-200"
+            >
+              Manage Images
+            </button>
+            <button
               onClick={() => navigate('/properties')}
               className="rounded bg-gray-100 px-4 py-2 hover:bg-gray-200"
             >

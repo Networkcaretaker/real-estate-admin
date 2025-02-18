@@ -27,3 +27,22 @@ export interface AIAnalysisResponse {
   message?: string;
 }
 
+// Property AI Assistant
+export interface PropertyAIRequest {
+  property_id: string;
+  image_id: string;
+  versions: AIVersion[];  // Reusing existing AIVersion type
+}
+
+export interface PropertyAIResponse {
+  version: AIVersion;
+  title: string;
+  description: string;
+  excerpt: string;
+}
+
+export interface PropertyAIMetadata {
+  last_generated: string;
+  image_id: string;  // Track which image was used
+  responses: PropertyAIResponse[];
+}

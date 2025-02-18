@@ -204,18 +204,21 @@ interface IconButtonProps {
     icon: React.ReactNode;
     title?: string;
     className?: string;
+    disabled?: boolean;
 }
 
 export const IconButton: React.FC<IconButtonProps> = ({ 
     onClick, 
     icon, 
     title, 
+    disabled = false,
     className = "p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
     }) => (
     <button
         onClick={onClick}
         className={className}
         title={title}
+        disabled={disabled}
     >
         {icon}
     </button>
