@@ -73,6 +73,24 @@ export const EditImage: React.FC<IconProps> = ({ className = "w-6 h-6", size }) 
     </svg>
 );
 
+export const ViewProperty: React.FC<IconProps> = ({ className = "w-6 h-6", size }) => (
+    <svg 
+        className={className} 
+        width={size} 
+        height={size} 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+    >
+        <path 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        strokeWidth={2} 
+        d="M15 12a3 3 0 11-6 0 3 3 0 016 0M12 4.5c-4.5 0-8.5 3-11 7.5 2.5 4.5 6.5 7.5 11 7.5s8.5-3 11-7.5c-2.5-4.5-6.5-7.5-11-7.5z"
+        />
+    </svg>
+);
+
 export const TrashIcon: React.FC<IconProps> = ({ className = "w-6 h-6", size }) => (
     <svg 
         className={className} 
@@ -204,18 +222,21 @@ interface IconButtonProps {
     icon: React.ReactNode;
     title?: string;
     className?: string;
+    disabled?: boolean;
 }
 
 export const IconButton: React.FC<IconButtonProps> = ({ 
     onClick, 
     icon, 
     title, 
+    disabled = false,
     className = "p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
     }) => (
     <button
         onClick={onClick}
         className={className}
         title={title}
+        disabled={disabled}
     >
         {icon}
     </button>

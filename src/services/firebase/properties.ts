@@ -284,4 +284,29 @@ export const propertyService = {
         throw error;
       }
     },
+
+    // Add this to propertyService in properties.ts
+    async updatePropertyDetails(
+      id: string, 
+      updates: { 
+        title?: string; 
+        excerpt?: string; 
+        description?: string;
+      }
+    ): Promise<void> {
+      try {
+        console.log('Updating property details:', { id, updates });
+
+        const docRef = doc(db, 'properties', id);
+        await updateDoc(docRef, {
+          ...updates,
+          updated_at: new Date().toISOString()
+        });
+
+        console.log('Property details updated successfully');
+      } catch (error: any) {
+        console.error('Firebase error updating property details:', error);
+        throw new Error(`Failed to update property details: ${error.message}`);
+      }
+    },
   };

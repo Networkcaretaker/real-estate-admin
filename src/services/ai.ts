@@ -33,5 +33,34 @@ export const aiService = {
         message: error instanceof Error ? error.message : 'Failed to analyze image'
       };
     }
+  },
+  analyzeProperty: async ({
+    property_id,
+    image_id,
+    versions
+  }: {
+    property_id: string;
+    image_id: string;
+    versions: string[];
+  }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/ai/analyze-property`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          property_id,
+          image_id,
+          versions
+        })
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error analyzing property:', error);
+      throw error;
+    }
   }
 };

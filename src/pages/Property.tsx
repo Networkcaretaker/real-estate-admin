@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ImageGallery from '../components/ImageGallery';
+import ImageGallery from '../components/ImageSimpleGallery';
 import { propertyService } from '../services/firebase/properties';
 import type { Property, PropertyImage } from '../types/property'; // Add this import
+import Parser from 'html-react-parser';
+
+import { 
+  EditIcon,
+  IconButton,
+  EditImage
+} from '../components/common/icons';
 
 const Property = () => {
   const { id } = useParams();
@@ -147,18 +154,23 @@ const Property = () => {
       <div className="container mx-auto px-4">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">
-            {property?.title ? `${property.id} | ${property.title}` : 'Property Details'}
+            {property?.title ? `${property.id} ${property.details.property_type} in ${property.location.town}` : 'Edit Property'}
+            <br />
+            <span className="text-gray-500 text-xl font-thin">{property?.title ? `${property.title}` : 'Property'}</span>
           </h1>
           <div className="flex gap-4">
-            <select
-              value={property?.website_status || 'Disabled'}
-              onChange={(e) => handleStatusChange(e.target.value)}
+          <IconButton
+              onClick={() => navigate(`/properties/${id}/edit`)}
+              icon={<EditIcon />}
+              title="Edit Property"
               disabled={saving}
-              className="rounded border p-2"
-            >
-              <option value="Disabled">Disabled</option>
-              <option value="Active">Active</option>
-            </select>
+            />
+            <IconButton
+              onClick={() => navigate(`/properties/${id}/images`)}
+              icon={<EditImage />}
+              title="Manage Images"
+              disabled={saving}
+            />
             <button
               onClick={() => navigate('/properties')}
               className="rounded bg-gray-100 px-4 py-2 hover:bg-gray-200"
@@ -169,398 +181,144 @@ const Property = () => {
         </div>
 
         <div className="grid gap-6">
-          {/* Feature Image Section */}
           <section className="rounded-lg border bg-white p-6">
-          <div className="flex mb-2">
-              <div className="w-1/2 flex items-start justify-between">
-                <h2 className="mb-2 text-xl font-semibold">Feature Image</h2>
-              </div>
-              <div className="w-1/2 flex items-baseline justify-end">
-                <button
-                  onClick={() => navigate(`/properties/${id}/images`)}
-                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                  title="Edit Images"
-                >
-                  <svg 
-                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                    />
-                  </svg>                            
-                </button>
-              </div>
-            </div>
-            
-            <div className="relative">
-              {loading ? (
-                <div className="w-full h-[400px] bg-gray-100 animate-pulse rounded-lg" />
-              ) : property?.media?.feature_image_id ? (
-                <div className="relative w-full h-[500px]">
-                  {images.map((image) => {
-                    if (image.id === property.media.feature_image_id) {
-                      return (
-                        <img
-                          key={image.id}
-                          src={image.urls.large}
-                          alt={property.title || 'Property feature image'}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
-              ) : (
-                <div className="w-full h-[400px] bg-gray-100 flex items-center justify-center rounded-lg">
-                  <div className="text-center">
-                    <svg 
-                      className="mx-auto h-12 w-12 text-gray-400" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
-                      />
-                    </svg>
-                    <p className="mt-2 text-sm text-gray-500">No feature image set</p>
-                    <button
-                      onClick={() => navigate(`/properties/${id}/images`)}
-                      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                    >
-                      Manage Images
-                    </button>
+            {/* Basic Details */}
+            <div className="grid grid-cols-3 gap-6">
+              <div  className="">
+                <div className="flex gap-2 items-center justify-center">  
+                  <div className="relative">
+                    {loading ? (
+                      <div className="w-full bg-gray-100 animate-pulse rounded-lg" />
+                    ) : property?.media?.feature_image_id ? (
+                      <div className="relative w-full">
+                        {images.map((image) => {
+                          if (image.id === property.media.feature_image_id) {
+                            return (
+                              <img
+                                key={image.id}
+                                src={image.urls.large}
+                                alt={property.title || 'Property feature image'}
+                                className="w-full h-full object-cover rounded-lg"
+                              />
+                            );
+                          }
+                          return null;
+                        })}
+                      </div>
+                    ) : (
+                      <div className="w-full h-[200px] bg-gray-100 flex items-center justify-center rounded-lg">
+                        <div className="text-center">
+                          <svg 
+                            className="mx-auto h-12 w-12 text-gray-400" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round" 
+                              strokeWidth={2} 
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                            />
+                          </svg>
+                          <p className="mt-2 text-sm text-gray-500">No feature image set</p>
+                          <button
+                            onClick={() => navigate(`/properties/${id}/images`)}
+                            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                          >
+                            Manage Images
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
-            </div>
-          </section>  
-          {/* Basic Details */}
-          <section className="rounded-lg border bg-white p-6">
-            <div className="flex mb-2">
-              <div className="w-1/2 flex items-start justify-between">
-                <h2 className="mb-2 text-xl font-semibold">Basic Details</h2>
-              </div>
-              <div className="w-1/2 flex items-baseline justify-end">
-                <button
-                  onClick={() => navigate(`/properties/${id}/edit`)}
-                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                  title="Edit Property"
-                >
-                  <svg 
-                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                    />
-                  </svg>                            
-                </button>
-              </div>
-            </div>
-            <div className="grid gap-4">
-              <div>
-                <label className="font-medium">Reference</label>
-                <p>{property?.id}</p>
-              </div>
-              <div>
-                <label className="font-medium">Title</label>
-                <p>{property?.title}</p>
-              </div>
-              <div>
-                <label className="font-medium">Excerpt</label>
-                <p>{property?.excerpt}</p>
-              </div>
-              <div>
-                <label className="font-medium">Price</label>
-                <p>{property?.price?.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'USD'
-                })}</p>
-              </div>
-              <div>
-                <label className="font-medium">Description</label>
-                <p>{property?.description}</p>
-                {/*<div dangerouslySetInnerHTML={{__html: property?.description}} />*/}
-              </div>
-            </div>           
-          </section>
-
-          {/* Location */}
-          <section className="rounded-lg border bg-white p-6">
-            <div className="flex mb-2">
-              <div className="w-1/2 flex items-start justify-between">
-                <h2 className="mb-2 text-xl font-semibold">Location</h2>
-              </div>
-              <div className="w-1/2 flex items-baseline justify-end">
-                <button
-                  // onClick={() => }
-                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                  title="Edit Location"
-                >
-                  <svg 
-                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            <div className="grid gap-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="font-medium">Town</label>
-                  <p>{property?.location.town}</p>
+                <div className="flex gap-2 items-center justify-center py-2">
+                  <h2 className="text-5xl">{property?.price?.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0
+                  })}</h2>
                 </div>
-                <div>
-                  <label className="font-medium">Region</label>
-                  <p>{property?.location.region}</p>
+                <div className="flex gap-2 items-center justify-center py-2">
+                  <p className="text-center text-base">{property?.excerpt}</p>
                 </div>
-                <div>
-                  <label className="font-medium">Municipality</label>
-                  <p>{property?.location.municipality}</p>
-                </div>
-                <div>
-                  <label className="font-medium">Postcode</label>
-                  <p>{property?.location.postcode}</p>
-                </div>
-              </div>
-            </div>
-          </section>
+                
+                <div className="flex gap-4 items-center justify-center py-2">
+                  <div className="grid gap-2 my-4 w-16">
+                    <div className="flex justify-center items-center gap-2">
+                      <img src='/property_area.svg' className="w-8" ></img>
+                    </div>
+                    <div className="flex justify-center items-center gap-2">
+                      <p className="col-span-2">{property?.details.area_property ? property?.details.area_property + ' m²': '-'}</p>
+                    </div>
+                  </div>
 
-          {/* Property Details */}
-          <section className="rounded-lg border bg-white p-6">
-            <div className="flex mb-2">
-              <div className="w-1/2 flex items-start justify-between">
-                <h2 className="mb-2 text-xl font-semibold">Property Details</h2>
-              </div>
-              <div className="w-1/2 flex items-baseline justify-end">
-                <button
-                  // onClick={() => }
-                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                  title="Edit Details"
-                >
-                  <svg 
-                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="font-medium">Property Type</label>
-                <p>{property?.details.property_type}</p>
-              </div>
-              <div>
-                <label className="font-medium">Direction</label>
-                <p>{property?.details.direction}</p>
-              </div>
-              <div>
-                <label className="font-medium">Plot Area</label>
-                <p>{property?.details.area_plot} m²</p>
-              </div>
-              <div>
-                <label className="font-medium">Property Area</label>
-                <p>{property?.details.area_property} m²</p>
-              </div>
-            </div>
-          </section>
+                  <div className="grid gap-2 my-4 w-16">
+                    <div className="flex justify-center items-center gap-2">
+                      <img src='/plot_area.svg' className="w-8" ></img>
+                    </div>
+                    <div className="flex justify-center items-center gap-2">
+                      <p className="col-span-2">{property?.details.area_plot ? property?.details.area_plot + ' m²': '-'}</p>
+                    </div>
+                  </div>
 
-          {/* Rooms */}
-          <section className="rounded-lg border bg-white p-6">
-            <div className="flex mb-2">
-              <div className="w-1/2 flex items-start justify-between">
-                <h2 className="mb-2 text-xl font-semibold">Rooms</h2>
-              </div>
-              <div className="w-1/2 flex items-baseline justify-end">
-                <button
-                  // onClick={() => }
-                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                  title="Edit Rooms"
-                >
-                  <svg 
-                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="font-medium">Bedrooms</label>
-                <p>{property?.rooms.bedrooms}</p>
-              </div>
-              <div>
-                <label className="font-medium">Bathrooms</label>
-                <p>{property?.rooms.bathrooms}</p>
-              </div>
-              <div>
-                <label className="font-medium">Total Rooms</label>
-                <p>{property?.rooms.total_rooms}</p>
-              </div>
-            </div>
-          </section>
+                  <div className="grid gap-2 my-4 w-16">
+                    <div className="flex justify-center items-center gap-2">
+                      <img src='/bedrooms.svg' className="w-8" ></img>
+                    </div>
+                    <div className="flex justify-center items-center gap-2">
+                      <p className="col-span-2">{property?.rooms.bedrooms ? property?.rooms.bedrooms: '-'}</p>
+                    </div>
+                  </div>
 
-          {/* Features */}
-          <section className="rounded-lg border bg-white p-6">
-            <div className="flex mb-2">
-              <div className="w-1/2 flex items-start justify-between">
-                <h2 className="mb-2 text-xl font-semibold">Features</h2>
-              </div>
-              <div className="w-1/2 flex items-baseline justify-end">
-                <button
-                    // onClick={() => }
-                    className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                    title="Edit Features"
-                  >
-                  <svg 
-                    className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                    />
-                  </svg>
-                </button> 
-              </div>
-            </div>
-            
-            <div className="grid gap-6">
-              {property?.features.interior.length ? (
-                <div>
-                  <h3 className="mb-2 font-medium">Interior Features</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {property.features.interior.map((feature, index) => (
-                      <span key={index} className="rounded-full bg-gray-100 px-3 py-1">
-                        {feature}
-                      </span>
-                    ))}
+                  <div className="grid gap-2 my-4 w-16">
+                    <div className="flex justify-center items-center gap-2">
+                      <img src='/bathrooms.svg' className="w-8" ></img>
+                    </div>
+                    <div className="flex justify-center items-center gap-2">
+                      <p className="col-span-2">{property?.rooms.bathrooms ? property?.rooms.bathrooms: '-'}</p>
+                    </div>
                   </div>
                 </div>
-              ) : null}
-              
-              {property?.features.exterior.length ? (
-                <div>
-                  <h3 className="mb-2 font-medium">Exterior Features</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {property.features.exterior.map((feature, index) => (
-                      <span key={index} className="rounded-full bg-gray-100 px-3 py-1">
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
+
+                <div className="flex flex-wrap justify-center items-center gap-2 text-xs my-2">
+                  {property?.features.interior.map((feature, index) => (
+                    <span key={index} className="rounded-full bg-gray-100 px-3 py-1">
+                      {feature}
+                    </span>
+                  ))}
                 </div>
-              ) : null}
-            </div>
-          </section>
-
-          {/* Image Gallery */}
-          <section className="rounded-lg border bg-white p-6">
-            <div className="flex mb-2">
-              <div className="w-1/2 flex items-start justify-between">
-                <h2 className="mb-2 text-xl font-semibold">Property Images</h2>
+                <div className="flex flex-wrap justify-center items-center gap-2 text-xs my-2">
+                  {property?.features.exterior.map((feature, index) => (
+                    <span key={index} className="rounded-full bg-gray-100 px-3 py-1">
+                      {feature}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="w-1/2 flex items-baseline justify-end">
-              <button
-                onClick={() => {}}
-                className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                title="Edit Gallery"
-              >
-                <svg 
-                  className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                    />
-                </svg>
-              </button>
+
+              <div className="col-span-2">
+                <div className="grid gap-2">                  
+                  <div>{property?.description 
+                    ? Parser(`${property.description}`)
+                    : 'Property Description'}</div>
+                </div>
+
+                <div className="grid gap-2 py-8">
+                {images.length > 0 ? (
+                  <ImageGallery
+                    propertyId={id || ''}
+                    images={images}
+                    featureImageId={property?.media?.feature_image_id}
+                  />
+                ) : (
+                  <p className="text-gray-500">No images uploaded yet.</p>
+                )}
+                </div>
               </div>
             </div>
-            
-            {images.length > 0 ? (
-              <ImageGallery
-                propertyId={id || ''}
-                images={images}
-                featureImageId={property?.media?.feature_image_id}
-                onFeatureImageSelect={async (imageId) => {
-                  if (!id) return;
-                  try {
-                    await propertyService.setFeatureImage(id, imageId);
-                    setProperty(prev => prev ? {
-                      ...prev,
-                      media: {
-                        ...prev.media,
-                        feature_image_id: imageId
-                      }
-                    } : null);
-                  } catch (err) {
-                    setError('Failed to set feature image');
-                  }
-                }}
-                onImageDelete={handleImageDelete}
-                onReorder={handleReorder}
-              />
-            ) : (
-              <p className="text-gray-500">No images uploaded yet.</p>
-            )}
           </section>
-
         </div>
       </div>
   );
