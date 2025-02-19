@@ -5,6 +5,12 @@ import { propertyService } from '../services/firebase/properties';
 import type { Property, PropertyImage } from '../types/property';
 import ImageEditGallery from '../components/ImageEditGallery';
 
+import { 
+  IconButton,
+  ViewProperty,
+  EditIcon
+} from '../components/common/icons';
+
 const Property = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -195,15 +201,23 @@ const Property = () => {
       <div className="container mx-auto px-4">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">
-            {property?.title ? `${property.id} | ${property.title}` : 'Manage Property Images'}
+            {property?.title ? `${property.id} ${property.details.property_type} in ${property.location.town}` : 'Edit Property'}
+            <br />
+            <span className="text-gray-500 text-xl font-thin">{property?.title ? `${property.title}` : 'Property'}</span>
           </h1>
           <div className="flex gap-4">
-            <button
+            <IconButton
+              onClick={() => navigate(`/properties/${id}/edit`)}
+              icon={<EditIcon />}
+              title="Edit Property"
+              disabled={saving}
+            />
+            <IconButton
               onClick={() => navigate(`/properties/${id}/details`)}
-              className="rounded bg-blue-100 px-4 py-2 hover:bg-blue-200"
-            >
-              View Property
-            </button>
+              icon={<ViewProperty />}
+              title="View Property"
+              disabled={saving}
+            />
             <button
               onClick={() => navigate('/properties')}
               className="rounded bg-gray-100 px-4 py-2 hover:bg-gray-200"

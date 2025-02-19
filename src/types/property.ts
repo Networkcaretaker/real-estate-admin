@@ -1,3 +1,5 @@
+import { AIResponse } from './ai';
+
 export interface PropertyLocation {
   country: string;
   region: string;
@@ -87,6 +89,12 @@ export interface Property {
   website_status?: string;
   media: PropertyMedia;
   images?: Record<string, PropertyImage>;
+  // Add AI metadata fields
+  ai_meta?: {
+    last_generated?: string;
+    image_id?: string;
+    responses?: AIResponse[];
+  };
 }
 
 export interface EditState {
