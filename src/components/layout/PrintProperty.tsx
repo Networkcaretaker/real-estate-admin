@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ImageGallery from '../components/ImageSimpleGallery';
-import { propertyService } from '../services/firebase/properties';
-import type { Property, PropertyImage } from '../types/property'; // Add this import
+import ImageGallery from '../../components/ImageSimpleGallery';
+import { propertyService } from '../../services/firebase/properties';
+import type { Property, PropertyImage } from '../../types/property'; 
 import Parser from 'html-react-parser';
 
 import { 
@@ -10,7 +10,7 @@ import {
   IconButton,
   EditImage,
   PrintIcon
-} from '../components/common/icons';
+} from '../../components/common/icons';
 
 const Property = () => {
   const { id } = useParams();
@@ -248,7 +248,7 @@ const Property = () => {
                   })}</h2>
                 </div>
                 <div className="flex gap-2 items-center justify-center py-2">
-                  <p className="text-center text-sm">{property?.excerpt}</p>
+                  <p className="text-center text-base">{property?.excerpt}</p>
                 </div>
                 
                 <div className="flex gap-4 items-center justify-center py-2">
@@ -257,7 +257,7 @@ const Property = () => {
                       <img src='/property_area.svg' className="w-8" ></img>
                     </div>
                     <div className="flex justify-center items-center gap-2">
-                      <p className="col-span-2 text-sm">{property?.details.area_property ? property?.details.area_property + ' m²': '-'}</p>
+                      <p className="col-span-2">{property?.details.area_property ? property?.details.area_property + ' m²': '-'}</p>
                     </div>
                   </div>
 
@@ -266,7 +266,7 @@ const Property = () => {
                       <img src='/plot_area.svg' className="w-8" ></img>
                     </div>
                     <div className="flex justify-center items-center gap-2">
-                      <p className="col-span-2 text-sm">{property?.details.area_plot ? property?.details.area_plot + ' m²': '-'}</p>
+                      <p className="col-span-2">{property?.details.area_plot ? property?.details.area_plot + ' m²': '-'}</p>
                     </div>
                   </div>
 
@@ -275,7 +275,7 @@ const Property = () => {
                       <img src='/bedrooms.svg' className="w-8" ></img>
                     </div>
                     <div className="flex justify-center items-center gap-2">
-                      <p className="col-span-2 text-sm">{property?.rooms.bedrooms ? property?.rooms.bedrooms: '-'}</p>
+                      <p className="col-span-2">{property?.rooms.bedrooms ? property?.rooms.bedrooms: '-'}</p>
                     </div>
                   </div>
 
@@ -284,7 +284,7 @@ const Property = () => {
                       <img src='/bathrooms.svg' className="w-8" ></img>
                     </div>
                     <div className="flex justify-center items-center gap-2">
-                      <p className="col-span-2 text-sm">{property?.rooms.bathrooms ? property?.rooms.bathrooms: '-'}</p>
+                      <p className="col-span-2">{property?.rooms.bathrooms ? property?.rooms.bathrooms: '-'}</p>
                     </div>
                   </div>
                 </div>

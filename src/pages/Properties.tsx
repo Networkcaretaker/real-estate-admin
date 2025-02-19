@@ -290,7 +290,7 @@ const Properties = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {properties.map((property) => (
               <tr key={property.id} className="hover:bg-gray-50 items-center">
-                <td className="px-6 py-4 w-1/12" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 w-1/12" onClick={() => navigate(`/properties/${property.id}/view`)}>
                   {loadingImages[property.id] ? (
                     <div className="w-8 h-8 bg-gray-100 animate-pulse rounded-lg" />
                   ) : property.featureImageUrl ? (
@@ -317,20 +317,20 @@ const Properties = () => {
                     </div>
                   )}
                 </td>
-                <td className="px-6 py-4 cursor-pointer w-1/12" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 cursor-pointer w-1/12" onClick={() => navigate(`/properties/${property.id}/view`)}>
                   <div className="text-sm text-gray-900">{property.property_id}</div>
                 </td>
-                <td className="px-6 py-4 w-2/12 cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 w-2/12 cursor-pointer" onClick={() => navigate(`/properties/${property.id}/view`)}>
                   <div className="text-sm text-gray-900">{property.title || 'Untitled'}</div>
                 </td>
-                <td className="px-6 py-4 w-2/12 cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 w-2/12 cursor-pointer" onClick={() => navigate(`/properties/${property.id}/view`)}>
                   <div className="text-sm text-gray-900">
                     {property.location ? (
                       `${property.location.town}, ${property.location.municipality}`
                     ) : 'N/A'}
                   </div>
                 </td>
-                <td className="px-6 py-4 w-1/12 cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 w-1/12 cursor-pointer" onClick={() => navigate(`/properties/${property.id}/view`)}>
                   <div className="text-sm text-gray-900">${property.price?.toLocaleString() || 'N/A'}</div>
                 </td>
                 <td className="px-6 py-4 w-1/12 justify-center text-center">

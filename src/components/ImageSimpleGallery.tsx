@@ -45,6 +45,13 @@ const ImageGallery: React.FC<ImageSimpleGalleryProps> = ({
                 alt={selectedImage.title || 'Property image'}
                 className="max-h-[90vh] max-w-[90vw] object-contain"
             />
+            <div className="w-full absolute -top-0 bg-opacity-70 bg-black p-2 text-white items-center justify-center">
+              <p className="text-center font-bold">{selectedImage.title}</p>
+            </div>
+            <div className="w-full absolute -bottom-0 bg-opacity-70 bg-black p-2 text-white items-center justify-center">
+              <p className="text-center px-2 text-sm">{selectedImage.description}</p>
+            </div>
+
             <button
                 onClick={() => setSelectedImage(null)}
                 className="absolute -top-4 -right-4 rounded-full bg-white p-2 text-black hover:bg-gray-100"
@@ -52,6 +59,7 @@ const ImageGallery: React.FC<ImageSimpleGalleryProps> = ({
                 ✕
             </button>
             </div>
+            
         </div>
         )}
     </>

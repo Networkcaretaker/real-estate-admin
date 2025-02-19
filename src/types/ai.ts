@@ -6,7 +6,7 @@ export interface AIResponse {
   version: string;
   title: string;
   description: string;
-  excerpt: string;
+  excerpt?: string;
   // These are optional since they're only used for image analysis
   image_title?: string;
   image_description?: string;
