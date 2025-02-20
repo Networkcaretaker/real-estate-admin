@@ -50,7 +50,7 @@ const App: React.FC = () => {
                     <Routes>
                       <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/properties" element={<Properties />} />
-                      <Route path="/properties/:id/details" element={<PropertyDetails />} />
+                      <Route path="/properties/:id/view" element={<PropertyDetails />} />
                       <Route path="/properties/:id/edit" element={<PropertyEdit />} />
                       <Route path="/properties/:id/images" element={<PropertyImages />} />
                       <Route path="/settings" element={<Settings />} />

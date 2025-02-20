@@ -200,10 +200,10 @@ const Property = () => {
     <>
       <div className="container mx-auto px-4">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-xl font-bold">
             {property?.title ? `${property.id} ${property.details.property_type} in ${property.location.town}` : 'Edit Property'}
             <br />
-            <span className="text-gray-500 text-xl font-thin">{property?.title ? `${property.title}` : 'Property'}</span>
+            <span className="text-gray-500 text-2xl font-thin">{property?.title ? `${property.title}` : 'Property'}</span>
           </h1>
           <div className="flex gap-4">
             <IconButton
@@ -213,7 +213,7 @@ const Property = () => {
               disabled={saving}
             />
             <IconButton
-              onClick={() => navigate(`/properties/${id}/details`)}
+              onClick={() => navigate(`/properties/${id}/view`)}
               icon={<ViewProperty />}
               title="View Property"
               disabled={saving}

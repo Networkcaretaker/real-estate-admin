@@ -239,17 +239,17 @@ const Websites = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {properties.map((property) => (
               <tr key={property.id} className="hover:bg-gray-50 items-center">
-                <td className="px-6 py-4 whitespace-nowrap" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 whitespace-nowrap" onClick={() => navigate(`/properties/${property.id}/view`)}>
                   <img 
                     src='/house.svg'
                     alt='website favicon' 
                     className="h-12 w-12 object-cover rounded-md"
                   />
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/view`)}>
                   <div className="text-sm text-gray-900">Website Title</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/details`)}>
+                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/view`)}>
                   <div className="text-sm text-gray-900">Website URL</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap justify-center">
