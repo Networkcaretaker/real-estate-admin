@@ -10,7 +10,8 @@ import {
   limit, 
   orderBy, 
   startAfter, 
-  DocumentData, 
+  DocumentData,
+  where,
   QueryDocumentSnapshot 
 } from '@firebase/firestore';
 
@@ -69,6 +70,29 @@ export const propertyService = {
       } catch (error: any) {
         console.error('Firebase error:', error);
         throw new Error(`Failed to fetch properties: ${error.message}`);
+      }
+    },
+    async getAllProperties() {
+      try {
+        console.log('Fetching all properties for search...');
+        
+        const q = query(
+          collection(db, 'properties'),
+          orderBy('property_id')  // Keep some ordering for consistency
+        );
+    
+        const snapshot = await getDocs(q);
+        
+        const properties = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Property[];
+    
+        return properties;
+        
+      } catch (error: any) {
+        console.error('Firebase error fetching all properties:', error);
+        throw new Error(`Failed to fetch all properties: ${error.message}`);
       }
     },
     async getProperty(id: string): Promise<Property> {
@@ -215,6 +239,33 @@ export const propertyService = {
       } catch (error) {
         console.error('Error updating image order:', error);
         throw error;
+      }
+    },
+    async searchById(searchTerm: string) {
+      try {
+        console.log('Searching for property with term:', searchTerm);
+        
+        const q = query(
+          collection(db, 'properties'),
+          where('property_id', 'array-contains', searchTerm)
+        );
+    
+        const snapshot = await getDocs(q);
+        
+        if (snapshot.empty) {
+          return [];
+        }
+    
+        const properties = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Property[];
+    
+        return properties;
+        
+      } catch (error: any) {
+        console.error('Firebase error searching property:', error);
+        throw new Error(`Failed to search property: ${error.message}`);
       }
     },
     async updateImageDetails(
