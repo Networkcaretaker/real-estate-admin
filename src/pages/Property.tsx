@@ -178,6 +178,15 @@ const Property = () => {
               title="Print"
               disabled={saving}
             />
+            <select
+              value={property?.website_status || 'Disabled'}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              disabled={saving}
+              className="rounded border p-2"
+            >
+              <option value="Disabled">Disabled</option>
+              <option value="Active">Active</option>
+            </select>
             <button
               onClick={() => navigate('/properties')}
               className="rounded bg-gray-100 px-4 py-2 hover:bg-gray-200"

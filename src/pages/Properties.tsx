@@ -24,6 +24,7 @@ const Properties = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingImages, setLoadingImages] = useState<{[key: string]: boolean}>({});
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'updated_at', direction: 'desc' });
+  const [searchId, setSearchId] = useState('');
   
   const navigate = useNavigate();
 
@@ -77,6 +78,39 @@ const Properties = () => {
     } catch (err) {
       console.error('Error loading properties:', err);
       setError('Failed to load properties');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!searchId.trim()) {
+      // If search is cleared, reload original paginated data
+      loadProperties(true);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      // Fetch all properties
+      const allProperties = await propertyService.getAllProperties();
+      
+      // Filter properties
+      const searchTerm = searchId.trim().toLowerCase();
+      const filteredProperties = allProperties.filter(property => 
+        property.property_id?.toLowerCase().includes(searchTerm)
+      );
+      
+      // Load images for filtered properties
+      const propertiesWithImages = await loadFeatureImages(filteredProperties);
+      
+      setProperties(propertiesWithImages);
+      setHasMore(false); // Disable load more during search
+      
+    } catch (err) {
+      console.error('Error searching properties:', err);
+      setError('Failed to search properties');
     } finally {
       setLoading(false);
     }
@@ -146,35 +180,35 @@ const Properties = () => {
   return (  
     <div className="mx-auto">
       {/* Sort Controls */}
-      <div className="mb-4 bg-white rounded-lg shadow p-4">
-        <div className="flex items-center gap-4 justify-center">
-
-          <div className="flex w-3/4">
+      <div className="mb-4 bg-white rounded-lg shadow p-4 flex items-center">
+        <div className="w-3/4">
+          <div className="flex gap-4 py-2">
             {/* Search input */}
             <div className="flex gap-2 px-2">
-              <label className="text-sm font-medium text-gray-700">Ref:</label>
+              <label className="text-sm font-medium text-gray-700">Reference:</label>
               <input
                 type="text"
                 placeholder="Search properties..."
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-44"
                 disabled={loading}
+                value={searchId}
+                onChange={(e) => setSearchId(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearch();
+                  }
+                }}
               />
+              <button  className="rounded-md shadow-sm bg-blue-500 text-stone-50 text-xs py-1 px-4">
+                Search
+              </button>
             </div>
-
-            {/* Filters */}
-            <div className="flex gap-2 px-2">
-              <label className="text-sm font-medium text-gray-700">Type:</label>
-              <select
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
-                disabled={loading}
-              >
-                <option value="">All</option>
-              </select>
-            </div>
+            {/* Status Filter */}
             <div className="flex gap-2 px-2">
               <label className="text-sm font-medium text-gray-700">Status:</label>
               <select
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-28"
                 disabled={loading}
               >
                 <option value="">All</option>
@@ -182,10 +216,22 @@ const Properties = () => {
                 <option value="">Disabled</option>
                 </select>
             </div>
+          </div>
+          <div className="flex gap-4 py-2">
+            {/* Type Filter */}
+            <div className="flex gap-2 px-2">
+              <label className="text-sm font-medium text-gray-700">Type:</label>
+              <select
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-28"
+                disabled={loading}
+              >
+                <option value="">All</option>
+              </select>
+            </div>
             <div className="flex gap-2 px-2">
               <label className="text-sm font-medium text-gray-700">Municipality:</label>
               <select
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-28"
                 disabled={loading}
               >
                 <option value="">All</option>
@@ -194,7 +240,7 @@ const Properties = () => {
             <div className="flex gap-2 px-2">
               <label className="text-sm font-medium text-gray-700">Town:</label>
               <select
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24" 
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-28" 
                 disabled={loading}
               >
                 <option value="">All</option>
@@ -217,29 +263,16 @@ const Properties = () => {
                 disabled={loading}
               />
             </div>
-          </div>
-
-          <div className="flex w-1/4 items-center">
-          <div className="flex w-1/4 justify-end">
-            <div className="flex gap-2">
-              <IconButton
-                icon={<TableListIcon />}
-                onClick={() => {}}
-                title="List View"
-              />
-              <IconButton
-                icon={<TableDetailedIcon />}
-                onClick={() => {}}
-                title="Action View"
-              />
-              <IconButton
-                icon={<TableCardIcon />}
-                onClick={() => {}}
-                title="Card View"
-              />
+            <div className="flex gap-2 px-2">
+              <button className="rounded-md shadow-sm bg-blue-500 text-stone-50 text-xs py-1 px-4">
+                Filter
+              </button>
             </div>
           </div>
-          <div className="flex w-3/4 justify-end items-end">
+        </div>
+        <div className="w-1/4 ">
+          
+          <div className="flex gap-4 py-2 justify-end">
             {/* Sort by dropdown */}
             <div className="flex gap-2 items-center">
               <label className="text-sm font-medium text-gray-700">Sort by:</label>
@@ -271,9 +304,28 @@ const Properties = () => {
               </select>
             </div>
           </div>
+          <div className="flex gap-4 py-2 justify-end">
+            <div className="flex gap-2">
+              <IconButton
+                icon={<TableListIcon />}
+                onClick={() => {}}
+                title="List View"
+              />
+              <IconButton
+                icon={<TableDetailedIcon />}
+                onClick={() => {}}
+                title="Action View"
+              />
+              <IconButton
+                icon={<TableCardIcon />}
+                onClick={() => {}}
+                title="Card View"
+              />
+            </div>
           </div>
         </div>
       </div>
+      
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -288,7 +340,8 @@ const Properties = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {properties.map((property) => (
+          {properties.length > 0 ? (
+            properties.map((property) => (
               <tr key={property.id} className="hover:bg-gray-50 items-center">
                 <td className="px-6 py-4 w-1/12" onClick={() => navigate(`/properties/${property.id}/view`)}>
                   {loadingImages[property.id] ? (
@@ -421,8 +474,21 @@ const Properties = () => {
                   </button>
                 </td>
               </tr>
-            ))}
-          </tbody>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                {loading ? (
+                  'Loading properties...'
+                ) : searchId.trim() ? (
+                  'No properties found matching your search'
+                ) : (
+                  'No properties available'
+                )}
+              </td>
+            </tr>
+          )}
+        </tbody>
         </table>
       </div>
       
