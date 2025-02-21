@@ -25,6 +25,7 @@ const Properties = () => {
   const [loadingImages, setLoadingImages] = useState<{[key: string]: boolean}>({});
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'updated_at', direction: 'desc' });
   const [searchId, setSearchId] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
   
   const navigate = useNavigate();
 
@@ -143,6 +144,36 @@ const Properties = () => {
     }
   };
 
+  const handleStatusFilter = async (status: string) => {
+    try {
+      setLoading(true);
+      
+      // If no status selected, reload original data
+      if (!status) {
+        loadProperties(true);
+        return;
+      }
+      
+      // Get all properties and filter by status
+      const allProperties = await propertyService.getAllProperties();
+      const filteredProperties = allProperties.filter(property => 
+        property.website_status === status
+      );
+      
+      // Load images for filtered properties
+      const propertiesWithImages = await loadFeatureImages(filteredProperties);
+      
+      setProperties(propertiesWithImages);
+      setHasMore(false); // Disable pagination for filtered results
+      
+    } catch (err) {
+      console.error('Error filtering properties:', err);
+      setError('Failed to filter properties');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const initialLoad = async () => {
       try {
@@ -200,21 +231,30 @@ const Properties = () => {
                   }
                 }}
               />
-              <button  className="rounded-md shadow-sm bg-blue-500 text-stone-50 text-xs py-1 px-4">
-                Search
+              <button  
+                onClick={handleSearch}
+                disabled={loading}
+                className="rounded-md shadow-sm bg-blue-500 text-stone-50 text-xs py-1 px-4"
+                >
+                  Search
               </button>
             </div>
             {/* Status Filter */}
             <div className="flex gap-2 px-2">
               <label className="text-sm font-medium text-gray-700">Status:</label>
               <select
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-28"
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
                 disabled={loading}
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  handleStatusFilter(e.target.value);
+                }}
               >
                 <option value="">All</option>
-                <option value="">Active</option>
-                <option value="">Disabled</option>
-                </select>
+                <option value="Active">Active</option>
+                <option value="disabled">Disabled</option>
+              </select>
             </div>
           </div>
           <div className="flex gap-4 py-2">
@@ -491,12 +531,6 @@ const Properties = () => {
         </tbody>
         </table>
       </div>
-      
-      {loading && (
-        <div className="flex justify-center py-4">
-          <div className="text-gray-500">Loading properties...</div>
-        </div>
-      )}
       
       {hasMore && !loading && (
         <div className="flex justify-center mt-4">

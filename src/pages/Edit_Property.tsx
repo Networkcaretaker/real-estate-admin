@@ -23,6 +23,7 @@ interface EditState {
   features: {
     interior: string[];
     exterior: string[];
+    luxury: string[]
   };
 }
 
@@ -39,30 +40,126 @@ const Property = () => {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
 
   const INTERIOR_FEATURES = [
-    'Air Conditioning',
-    'Central Heating',
-    'Fitted Kitchen',
-    'Built-in Wardrobes',
-    'Marble Floors',
-    'Security System',
-    'Home Automation',
-    'Fireplace',
-    'Walk-in Closet',
-    'En-suite Bathroom'
+    'air conditioning',
+    'central heating',
+    'fitted kitchen',
+    'built-in wardrobes',
+    'marble floors',
+    'security system',
+    'home automation',
+    'fireplace',
+    'walk-in closet',
+    'en-suite bathroom',
+    'double glazed',
+    'kitchen appliances',
+    'dining room',
+    'laundry room',
+    'office',
+    'pantry',
+    'storage room',
+    'kitchenette',
+    'sunroom',
+    'attic',
+    'guest room',
+    'wardrobe',
+    'shower room',
+    'lounge',
+    'living room',
+    'kitchen'
   ];
   
   const EXTERIOR_FEATURES = [
-    'Swimming Pool',
-    'Garden',
-    'Terrace',
-    'Garage',
-    'Sea View',
-    'Mountain View',
-    'Balcony',
-    'Private Parking',
-    'Tennis Court',
-    'BBQ Area'
+    'swimming pool',
+    'private garden',
+    'garden',
+    'terrace',
+    'covered terrace',
+    'garage',
+    'double garage',
+    'balcony',
+    'private parking',
+    'bbq area',
+    'roof terrace',
+    'porch'
   ];
+  
+  const LUXURY_FEATURES = [
+    'indoor pool',
+    'private gym',
+    'tennis court',
+    'spa',
+    'sauna',
+    'jacuzzi', 
+    'wine cellar',
+    'home theater',
+    'smart home',
+    'infinity pool',
+    'cinema',
+    'wetroom',
+    'games room',
+    'bar'
+  ];
+  
+  const COMMUNITY = [
+    'community pool',
+    'community gardens',
+    'gated community',
+    'lift',
+    'playground'
+  ];
+  
+  const AMENITIES = [
+    'sea view',
+    'mountain view',
+    'garden views',
+    'countryside views',
+    'easy access to airport',
+    'easy access to highway',
+    'easy access to metro',
+    'easy access to train',
+    'close to resturants',
+    'close to schools',
+    'close to airport',
+    'close to bank',
+    'close to beach',
+    'close to doctors',
+    'close to fire station',
+    'close to gym',
+    'close to hospital',
+    'close to pharmacy',
+    'close to police',
+    'close to supermarket',
+    'near playground',
+    'near gas station',
+    'near golf course',
+    'near green zone',
+    'near marina',
+    'near shopping center',
+    'near taxi rank',
+    'near train station',
+    'near water park'
+  ];
+  
+  const UTILITIES = [
+    'water',
+    'electricity',
+    'gas',
+    'sewage',
+    'solar',
+    'generator',
+    'heating system',
+    'cooling system',
+    'air conditioning',
+    'central heating',
+    'wifi',
+    'internet',
+    'cable',
+    'satellite',
+    'intercom',
+    'alarm',
+    'surveillance'
+  ];
+  
   
   // Define loadProperty function
   const loadProperty = async () => {
@@ -143,7 +240,8 @@ const Property = () => {
       description: property.description || '',
       features: {
         interior: property.features.interior || [],
-        exterior: property.features.exterior || []
+        exterior: property.features.exterior || [],
+        luxury: property.features.luxury || []
       }
     });
   };
@@ -157,7 +255,7 @@ const Property = () => {
     });
   };
 
-  const handleFeatureToggle = (featureType: 'interior' | 'exterior', feature: string) => {
+  const handleFeatureToggle = (featureType: 'interior' | 'exterior' | 'luxury', feature: string ) => {
     if (!pendingEdits) return;
     
     setPendingEdits(prev => {
@@ -356,12 +454,12 @@ const Property = () => {
               disabled={saving}
             />
             <select
-              value={property?.website_status || 'Disabled'}
+              value={property?.website_status || 'disabled'}
               onChange={(e) => handleStatusChange(e.target.value)}
               disabled={saving}
               className="rounded border p-2"
             >
-              <option value="Disabled">Disabled</option>
+              <option value="disabled">Disabled</option>
               <option value="Active">Active</option>
             </select>
             <button
@@ -470,7 +568,7 @@ const Property = () => {
               </div>
               {/* Editable Fields */}
               <div className="col-span-2">
-                <div className="grid gap-2 my-4">
+                <div className="grid gap-2">
                   <label className="block font-medium mb-1">Title</label>
                   {isEditing ? (
                     <input
@@ -573,6 +671,36 @@ const Property = () => {
                       )}
                     </div>
                   </div>
+
+                  {/* Luxury Features */}
+                  <div>
+                    <h3 className="mb-2 font-medium py-4">Luxury Features</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {isEditing ? (
+                        LUXURY_FEATURES.map((feature) => (
+                          <button
+                            key={feature}
+                            onClick={() => handleFeatureToggle('luxury', feature)}
+                            className={`rounded-full px-3 py-1 transition-colors ${
+                              pendingEdits?.features.luxury.includes(feature)
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                            }`}
+                            disabled={saving}
+                          >
+                            {feature}
+                          </button>
+                        ))
+                      ) : (
+                        property?.features.luxury ? property?.features.luxury.map((feature, index) => (
+                          <span key={index} className="rounded-full bg-gray-100 px-3 py-1">
+                            {feature}
+                          </span>
+                        )) : ''
+                      )}
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -616,6 +744,7 @@ const Property = () => {
             isOpen={showAIAssistant}
             onClose={() => setShowAIAssistant(false)}
             propertyId={id!}
+            property={property!}
             selectedImage={getSelectedImage()!}
             onUpdateProperty={handleUpdatePropertyContent}
             propertyAIMetadata={property?.ai_meta}

@@ -3,12 +3,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AIVersion, AIResponse } from '../types/ai';
 import { aiService } from '../services/ai';
-import { PropertyImage } from '../types/property';
+import { PropertyImage, Property } from '../types/property';
 
 interface AIPropertyAssistantProps {
   isOpen: boolean;
   onClose: () => void;
   propertyId: string;
+  property: Property;
   selectedImage: PropertyImage;
   onUpdateProperty: (updates: { 
     title?: string; 
@@ -38,6 +39,7 @@ export const AIPropertyAssistant: React.FC<AIPropertyAssistantProps> = ({
   isOpen,
   onClose,
   propertyId,
+  property,
   selectedImage,
   onUpdateProperty,
   onLoadAIMetadata,
@@ -217,6 +219,11 @@ export const AIPropertyAssistant: React.FC<AIPropertyAssistantProps> = ({
                 alt="Selected property"
                 className="w-full h-64 object-cover rounded"
               />
+            </div>
+
+            {/* Summary Preview */}
+            <div className="mb-4">
+              <p>{property?.excerpt}</p>
             </div>
 
             {/* Version Selection */}

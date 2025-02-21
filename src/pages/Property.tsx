@@ -179,12 +179,12 @@ const Property = () => {
               disabled={saving}
             />
             <select
-              value={property?.website_status || 'Disabled'}
+              value={property?.website_status || 'disabled'}
               onChange={(e) => handleStatusChange(e.target.value)}
               disabled={saving}
               className="rounded border p-2"
             >
-              <option value="Disabled">Disabled</option>
+              <option value="disabled">Disabled</option>
               <option value="Active">Active</option>
             </select>
             <button
@@ -304,13 +304,16 @@ const Property = () => {
                       {feature}
                     </span>
                   ))}
-                </div>
-                <div className="flex flex-wrap justify-center items-center gap-2 text-xs my-2">
                   {property?.features.exterior.map((feature, index) => (
                     <span key={index} className="rounded-full bg-gray-100 px-3 py-1">
                       {feature}
                     </span>
                   ))}
+                  {property?.features.luxury ? property?.features.luxury.map((feature, index) => (
+                    <span key={index} className="rounded-full bg-gray-100 px-3 py-1">
+                      {feature}
+                    </span>
+                  )) : ''}
                 </div>
               </div>
 
