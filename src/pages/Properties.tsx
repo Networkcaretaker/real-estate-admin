@@ -16,6 +16,14 @@ interface PropertyWithFeatureImage extends Property {
   featureImageUrl?: string | null;
 }
 
+interface FilterConfig {
+  propertyType: string;
+  municipality: string;
+  town: string;
+  priceMin: string;
+  priceMax: string;
+}
+
 const Properties = () => {
   const [properties, setProperties] = useState<PropertyWithFeatureImage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +34,13 @@ const Properties = () => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'updated_at', direction: 'desc' });
   const [searchId, setSearchId] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [filters, setFilters] = useState<FilterConfig>({
+    propertyType: '',
+    municipality: '',
+    town: '',
+    priceMin: '',
+    priceMax: ''
+  });
   
   const navigate = useNavigate();
 
@@ -174,6 +189,63 @@ const Properties = () => {
     }
   };
 
+  const handleFilter = async () => {
+    try {
+      setLoading(true);
+      
+      // Get all properties - we'll filter them in memory for now
+      const allProperties = await propertyService.getAllProperties();
+      
+      // Apply filters
+      let filteredProperties = allProperties;
+      
+      // Property Type filter
+      if (filters.propertyType) {
+        filteredProperties = filteredProperties.filter(property => 
+          property.details?.property_type === filters.propertyType
+        );
+      }
+      
+      // Municipality filter
+      if (filters.municipality) {
+        filteredProperties = filteredProperties.filter(property => 
+          property.location?.municipality === filters.municipality
+        );
+      }
+      
+      // Town filter
+      if (filters.town) {
+        filteredProperties = filteredProperties.filter(property => 
+          property.location?.town === filters.town
+        );
+      }
+      
+      // Price range filter
+      if (filters.priceMin) {
+        filteredProperties = filteredProperties.filter(property => 
+          property.price && property.price >= Number(filters.priceMin)
+        );
+      }
+      if (filters.priceMax) {
+        filteredProperties = filteredProperties.filter(property => 
+          property.price && property.price <= Number(filters.priceMax)
+        );
+      }
+      
+      // Load images for filtered properties
+      const propertiesWithImages = await loadFeatureImages(filteredProperties);
+      
+      setProperties(propertiesWithImages);
+      setHasMore(false); // Disable pagination for filtered results
+      
+    } catch (err) {
+      console.error('Error filtering properties:', err);
+      setError('Failed to filter properties');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const initialLoad = async () => {
       try {
@@ -264,30 +336,52 @@ const Properties = () => {
               <select
                 className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-28"
                 disabled={loading}
+                value={filters.propertyType}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  propertyType: e.target.value
+                }))}
               >
                 <option value="">All</option>
+                <option value="Villa">Villa</option>
+                <option value="Apartment">Apartment</option>
+                <option value="House">House</option>
               </select>
             </div>
+
+            {/* Municipality Filter */}
             <div className="flex gap-2 px-2">
               <label className="text-sm font-medium text-gray-700">Municipality:</label>
               <select
                 className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-28"
                 disabled={loading}
-              >
-                <option value="">All</option>
-              </select>
-            </div>
-            <div className="flex gap-2 px-2">
-              <label className="text-sm font-medium text-gray-700">Town:</label>
-              <select
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-28" 
-                disabled={loading}
+                value={filters.municipality}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  municipality: e.target.value
+                }))}
               >
                 <option value="">All</option>
               </select>
             </div>
 
-            {/* Filter Price min/max */}
+            {/* Town Filter */}
+            <div className="flex gap-2 px-2">
+              <label className="text-sm font-medium text-gray-700">Town:</label>
+              <select
+                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-28"
+                disabled={loading}
+                value={filters.town}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  town: e.target.value
+                }))}
+              >
+                <option value="">All</option>
+              </select>
+            </div>
+
+            {/* Price Filters */}
             <div className="flex gap-2 px-2">
               <label className="text-sm font-medium text-gray-700">Price:</label>
               <input
@@ -295,19 +389,31 @@ const Properties = () => {
                 placeholder="Min"
                 className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
                 disabled={loading}
+                value={filters.priceMin}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  priceMin: e.target.value
+                }))}
               />
               <input
                 type="number"
                 placeholder="Max"
                 className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
                 disabled={loading}
+                value={filters.priceMax}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  priceMax: e.target.value
+                }))}
               />
             </div>
-            <div className="flex gap-2 px-2">
-              <button className="rounded-md shadow-sm bg-blue-500 text-stone-50 text-xs py-1 px-4">
-                Filter
-              </button>
-            </div>
+            <button 
+              onClick={handleFilter}
+              disabled={loading}
+              className="rounded-md shadow-sm bg-blue-500 text-stone-50 text-xs py-1 px-4 disabled:bg-gray-300"
+            >
+              Filter
+            </button>
           </div>
         </div>
         <div className="w-1/4 ">
