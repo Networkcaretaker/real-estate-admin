@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { propertyService } from '../services/firebase/properties';
 import type { Property, SortConfig, SortDirection } from '../types/property';
@@ -41,6 +41,9 @@ const Properties = () => {
     priceMin: '',
     priceMax: ''
   });
+  const [municipalityOptions, setMunicipalityOptions] = useState<string[]>([]);
+  const [townOptions, setTownOptions] = useState<string[]>([]);
+  const [propertyTypeOptions, setPropertyTypeOptions] = useState<string[]>([]);
   
   const navigate = useNavigate();
 
@@ -246,10 +249,100 @@ const Properties = () => {
     }
   };
 
+  const loadPropertyTypeOptions = async () => {
+    try {
+      const allProperties = await propertyService.getAllProperties();
+      
+      // Extract unique property types
+      const types = new Set<string>();
+      
+      allProperties.forEach(property => {
+        if (property.details?.property_type) {
+          types.add(property.details.property_type);
+        }
+      });
+      
+      // Convert Set to sorted array
+      setPropertyTypeOptions(Array.from(types).sort());
+      
+    } catch (err) {
+      console.error('Error loading property type options:', err);
+    }
+  };
+
+  const loadLocationOptions = async () => {
+    try {
+      const allProperties = await propertyService.getAllProperties();
+      
+      // Extract unique municipalities
+      const municipalities = new Set<string>();
+      // Extract unique towns
+      const towns = new Set<string>();
+      
+      allProperties.forEach(property => {
+        if (property.location?.municipality) {
+          municipalities.add(property.location.municipality);
+        }
+        if (property.location?.town) {
+          towns.add(property.location.town);
+        }
+      });
+      
+      // Convert Sets to sorted arrays
+      setMunicipalityOptions(Array.from(municipalities).sort());
+      setTownOptions(Array.from(towns).sort());
+      
+    } catch (err) {
+      console.error('Error loading location options:', err);
+      // Optionally set an error state here
+    }
+  };
+
+  const handleResetFilters = async () => {
+    try {
+      setLoading(true);
+      
+      // Reset all filters to initial state
+      setFilters({
+        propertyType: '',
+        municipality: '',
+        town: '',
+        priceMin: '',
+        priceMax: ''
+      });
+      
+      // Reset status filter if it exists
+      setStatusFilter('');
+      
+      // Reset search if it exists
+      setSearchId('');
+      
+      // Reset the properties list to initial state
+      const { properties: newProperties, lastVisible: newLastVisible } = 
+        await propertyService.getProperties(null, sortConfig);
+      
+      const propertiesWithImages = await loadFeatureImages(newProperties);
+      setProperties(propertiesWithImages);
+      setLastVisible(newLastVisible);
+      setHasMore(true);
+      
+    } catch (err) {
+      console.error('Error resetting filters:', err);
+      setError('Failed to reset filters');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const initialLoad = async () => {
       try {
         setLoading(true);
+        await Promise.all([
+          loadLocationOptions(),
+          loadPropertyTypeOptions()
+        ]);
+
         const { properties: newProperties, lastVisible: newLastVisible } = 
           await propertyService.getProperties(null, sortConfig);
         
@@ -272,6 +365,18 @@ const Properties = () => {
     loadProperties();
   };
 
+  const filteredTownOptions = useMemo(() => {
+    if (!filters.municipality) return townOptions;
+    
+    return townOptions.filter(town => {
+      // Find if this town exists in any property with the selected municipality
+      return properties.some(property => 
+        property.location?.municipality === filters.municipality &&
+        property.location?.town === town
+      );
+    });
+  }, [filters.municipality, properties, townOptions]);
+
   if (error) {
     return (
       <>
@@ -283,7 +388,7 @@ const Properties = () => {
   return (  
     <div className="mx-auto">
       {/* Sort Controls */}
-      <div className="mb-4 bg-white rounded-lg shadow p-4 flex items-center">
+      <div className="mb-4 flex items-center">
         <div className="w-3/4">
           <div className="flex gap-4 py-2">
             {/* Search input */}
@@ -343,9 +448,11 @@ const Properties = () => {
                 }))}
               >
                 <option value="">All</option>
-                <option value="Villa">Villa</option>
-                <option value="Apartment">Apartment</option>
-                <option value="House">House</option>
+                {propertyTypeOptions.map(type => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -362,6 +469,11 @@ const Properties = () => {
                 }))}
               >
                 <option value="">All</option>
+                {municipalityOptions.map(municipality => (
+                  <option key={municipality} value={municipality}>
+                    {municipality}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -378,6 +490,11 @@ const Properties = () => {
                 }))}
               >
                 <option value="">All</option>
+                {filteredTownOptions.map(town => (
+                  <option key={town} value={town}>
+                    {town}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -413,6 +530,13 @@ const Properties = () => {
               className="rounded-md shadow-sm bg-blue-500 text-stone-50 text-xs py-1 px-4 disabled:bg-gray-300"
             >
               Filter
+            </button>
+            <button 
+              onClick={handleResetFilters}
+              disabled={loading}
+              className="rounded-md shadow-sm bg-gray-500 text-stone-50 text-xs py-1 px-4 disabled:bg-gray-300 hover:bg-gray-600 transition-colors"
+            >
+              Reset
             </button>
           </div>
         </div>
