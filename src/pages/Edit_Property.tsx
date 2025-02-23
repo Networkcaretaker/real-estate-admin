@@ -7,6 +7,9 @@ import Parser from 'html-react-parser';
 import ImageGallery from '../components/ImageGallery';
 
 import { 
+  StarFilledIcon, 
+  StarOutlineIcon,
+  TrashIcon,
   AIAnalysisIcon,
   EditIcon,
   CancelIcon,
@@ -404,48 +407,11 @@ const Property = () => {
           </h1>
 
           <div className="flex gap-4">
-            {isEditing ? (
-              <>
-                <IconButton
-                  onClick={handleSaveChanges}
-                  icon={<ConfirmIcon />}
-                  className="p-1 rounded-full text-green-500 hover:bg-gray-100 hover:text-green-700 transition-colors"
-                  title="Save Changes"
-                  disabled={saving}
-                />
-                <IconButton
-                  onClick={handleCancelEdits}
-                  icon={<CancelIcon />}
-                  className="p-1 rounded-full text-red-500 hover:bg-gray-100 hover:text-red-700 transition-colors"
-                  title="Cancel"
-                  disabled={saving}
-                />
-              </>
-            ) : null}
-            <IconButton
-              onClick={handleStartEditing}
-              icon={<EditIcon />}
-              title="Edit Property"
-              disabled={saving}
-            />
             <IconButton
               onClick={() => navigate(`/properties/${id}/images`)}
               icon={<EditImage />}
               title="Manage Images"
               disabled={saving}
-            />
-            <IconButton
-              onClick={() => {
-                const selectedImage = getSelectedImage();
-                if (!selectedImage) {
-                  setError('Please add at least one image before using the AI assistant');
-                  return;
-                }
-                setShowAIAssistant(true);
-              }}
-              icon={<AIAnalysisIcon />}
-              title="AI Property Assistant"
-              disabled={saving || isEditing || images.length === 0}
             />
             <IconButton
               onClick={() => navigate(`/properties/${id}/view`)}
@@ -474,10 +440,11 @@ const Property = () => {
         <div className="grid gap-6">
           <section className="rounded-lg border bg-white p-6">
             {/* Basic Details */}
-            <div className="grid grid-cols-3 gap-4">
-              <div  className="">
+
+            <div className="grid grid-cols-[1fr_2fr_auto] gap-4">
+              {/* Left Column - Property Info */}
+              <div className="">
                 <div className="flex gap-2 items-center justify-center">
-                  
                   <div className="relative">
                     {loading ? (
                       <div className="w-full bg-gray-100 animate-pulse rounded-lg" />
@@ -566,8 +533,9 @@ const Property = () => {
                   <p className="col-span-2">{property?.rooms.bathrooms ? property?.rooms.bathrooms : '-'}</p>
                 </div>
               </div>
-              {/* Editable Fields */}
-              <div className="col-span-2">
+
+              {/* Middle Column - Editable Fields */}
+              <div className="col-span-1">
                 <div className="grid gap-2">
                   <label className="block font-medium mb-1">Title</label>
                   {isEditing ? (
@@ -605,7 +573,6 @@ const Property = () => {
                       disabled={saving}
                     />
                   ) : (
-                    
                     <div>{property?.description 
                       ? Parser(`${property.description}`)
                       : 'Property Description'}</div>
@@ -700,8 +667,60 @@ const Property = () => {
                       )}
                     </div>
                   </div>
-
                 </div>
+              </div>
+
+              {/* Right Column - Icons */}
+              <div className="w-12 flex flex-col gap-2 items-center">
+                <IconButton
+                  onClick={() => {}}
+                  icon={<StarOutlineIcon />}
+                  title="Set as Featured"
+                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                />
+                <IconButton
+                  onClick={() => {
+                    const selectedImage = getSelectedImage();
+                    if (!selectedImage) {
+                      setError('Please add at least one image before using the AI assistant');
+                      return;
+                    }
+                    setShowAIAssistant(true);
+                  }}
+                  icon={<AIAnalysisIcon />}
+                  title="AI Assistant"
+                  disabled={saving || isEditing || images.length === 0}
+                />
+                <IconButton
+                  onClick={handleStartEditing}
+                  icon={<EditIcon />}
+                  title="Edit Info"
+                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                />
+                <IconButton
+                  onClick={() => {}}
+                  icon={<TrashIcon />}
+                  title="Delete Property"
+                  className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                />
+                {isEditing ? (
+                  <>
+                    <IconButton
+                      onClick={handleSaveChanges}
+                      icon={<ConfirmIcon />}
+                      className="p-1 rounded-full text-green-500 hover:bg-gray-100 hover:text-green-700 transition-colors"
+                      title="Save Changes"
+                      disabled={saving}
+                    />
+                    <IconButton
+                      onClick={handleCancelEdits}
+                      icon={<CancelIcon />}
+                      className="p-1 rounded-full text-red-500 hover:bg-gray-100 hover:text-red-700 transition-colors"
+                      title="Cancel"
+                      disabled={saving}
+                    />
+                  </>
+                ) : null}
               </div>
             </div>
           </section>

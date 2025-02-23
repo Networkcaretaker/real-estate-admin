@@ -1,364 +1,332 @@
 // src/pages/Websites.tsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { propertyService } from '../services/firebase/properties';
-import type { Property, SortConfig, SortDirection } from '../types/property';
-import { QueryDocumentSnapshot, DocumentData } from '@firebase/firestore';
-// import Header from '../components/layout/Header';
-
+import { collection, getDocs, addDoc } from '@firebase/firestore';
+import { db } from '../services/firebase/config';
 import { 
-  TableListIcon, 
-  TableCardIcon,
-  TableDetailedIcon, 
-  IconButton 
+  WebsiteIcon, 
+  PropertiesIcon,
+  EditIcon,
+  IconButton
 } from '../components/common/icons';
 
-interface PropertyWithFeatureImage extends Property {
-  featureImageUrl?: string | null;
+interface WebsiteSettings {
+  theme: string;
+  title: string;
+  description: string;
+  logo: string;
+  favicon: string;
+  status: 'active' | 'inactive';
 }
 
-const Websites = () => {
-  const [properties, setProperties] = useState<PropertyWithFeatureImage[]>([]);
+interface Website {
+  id: string;
+  website_url: string;
+  settings: WebsiteSettings;
+  updated_on: string;
+}
+
+interface AddWebsiteFormData {
+  website_url: string;
+  settings: WebsiteSettings;
+}
+
+const initialFormData: AddWebsiteFormData = {
+  website_url: '',
+  settings: {
+    theme: 'default',
+    title: '',
+    description: '',
+    logo: '',
+    favicon: '',
+    status: 'inactive'
+  }
+};
+
+const Websites: React.FC = () => {
+  const [websites, setWebsites] = useState<Website[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingImages, setLoadingImages] = useState<{[key: string]: boolean}>({});
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'updated_at', direction: 'desc' });
-  
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState<AddWebsiteFormData>(initialFormData);
+
   const navigate = useNavigate();
 
-  const loadFeatureImages = async (properties: Property[]) => {
-    const propertiesWithImages = await Promise.all(
-      properties.map(async (property) => {
-        if (!property.media?.feature_image_id) {
-          return property;
-        }
-
-        try {
-          setLoadingImages(prev => ({ ...prev, [property.id]: true }));
-          const images = await propertyService.getPropertyImages(property.id);
-          const featureImage = images.find(img => img.id === property.media.feature_image_id);
-          
-          return {
-            ...property,
-            featureImageUrl: featureImage?.urls.thumbnail
-          };
-        } catch (err) {
-          console.error(`Error loading feature image for property ${property.id}:`, err);
-          return property;
-        } finally {
-          setLoadingImages(prev => ({ ...prev, [property.id]: false }));
-        }
-      })
-    );
-
-    return propertiesWithImages;
-  };
-
-  const loadProperties = async (isFirstLoad = false) => {
-    try {
-      setLoading(true);
-      const lastDoc = isFirstLoad ? null : lastVisible;
-      
-      // Pass sort configuration to getProperties
-      const { properties: newProperties, lastVisible: newLastVisible } = 
-        await propertyService.getProperties(lastDoc, sortConfig);
-      
-      const propertiesWithImages = await loadFeatureImages(newProperties);
-      
-      if (isFirstLoad) {
-        setProperties(propertiesWithImages);
-      } else {
-        setProperties(prev => [...prev, ...propertiesWithImages]);
-      }
-      
-      setLastVisible(newLastVisible);
-      setHasMore(newProperties.length > 0);
-    } catch (err) {
-      console.error('Error loading properties:', err);
-      setError('Failed to load properties');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSort = async (field: string, direction: SortDirection) => {
-    const newSortConfig: SortConfig = { 
-      field, 
-      direction 
-    };
-    
-    setSortConfig(newSortConfig);
-    setProperties([]); // Clear existing properties
-    setLastVisible(null); // Reset pagination
-    
-    try {
-      setLoading(true);
-      const { properties: newProperties, lastVisible: newLastVisible } = 
-        await propertyService.getProperties(null, newSortConfig);
-      
-      const propertiesWithImages = await loadFeatureImages(newProperties);
-      setProperties(propertiesWithImages);
-      setLastVisible(newLastVisible);
-      setHasMore(newProperties.length > 0);
-    } catch (err) {
-      console.error('Error sorting properties:', err);
-      setError('Failed to sort properties');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    const initialLoad = async () => {
-      try {
-        setLoading(true);
-        const { properties: newProperties, lastVisible: newLastVisible } = 
-          await propertyService.getProperties(null, sortConfig);
-        
-        const propertiesWithImages = await loadFeatureImages(newProperties);
-        setProperties(propertiesWithImages);
-        setLastVisible(newLastVisible);
-        setHasMore(newProperties.length > 0);
-      } catch (err) {
-        console.error('Error loading properties:', err);
-        setError('Failed to load properties');
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    initialLoad();
-  }, []); // Only run on mount
+    loadWebsites();
+  }, []);
 
-  const handleLoadMore = () => {
-    loadProperties();
+  const loadWebsites = async () => {
+    try {
+      setLoading(true);
+      const websitesRef = collection(db, 'websites');
+      const snapshot = await getDocs(websitesRef);
+      const websitesList = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Website[];
+      
+      setWebsites(websitesList);
+      setError(null);
+    } catch (err) {
+      console.error('Error loading websites:', err);
+      setError('Failed to load websites');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (error) {
-    return (
-      <>
-        <div className="error-message">{error}</div>
-      </>
-    );
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const websitesRef = collection(db, 'websites');
+      await addDoc(websitesRef, {
+        ...formData,
+        updated_on: new Date().toISOString()
+      });
+      
+      setFormData(initialFormData);
+      setIsModalOpen(false);
+      loadWebsites();
+    } catch (err) {
+      console.error('Error adding website:', err);
+      setError('Failed to add website');
+    }
+  };
 
-  return (  
-    <div className="mx-auto">
-      {/* Sort Controls */}
-      <div className="mb-4 bg-white rounded-lg shadow p-4">
-        <div className="flex items-center gap-4 justify-center">
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    if (name === 'website_url') {
+      setFormData(prev => ({
+        ...prev,
+        website_url: value
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        settings: {
+          ...prev.settings,
+          [name]: value
+        }
+      }));
+    }
+  };
 
-          <div className="flex w-3/4">
-            {/* Search input */}
-            <div className="flex gap-2 px-2">
-              <label className="text-sm font-medium text-gray-700">Search:</label>
-              <input
-                type="text"
-                placeholder="Search websites..."
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
-                disabled={loading}
-              />
-            </div>
-
-            {/* Filters */}
-            <div className="flex gap-2 px-2">
-              <label className="text-sm font-medium text-gray-700">Status:</label>
-              <select
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
-                disabled={loading}
-              >
-                <option value="">All</option>
-                <option value="">Active</option>
-                <option value="">Disabled</option>
-                </select>
-            </div>
-          </div>
-
-          <div className="flex w-1/4 items-center">
-          <div className="flex w-1/4 justify-end">
-            <div className="flex gap-2">
-              <IconButton
-                icon={<TableListIcon />}
-                onClick={() => {}}
-                title="List View"
-              />
-              <IconButton
-                icon={<TableDetailedIcon />}
-                onClick={() => {}}
-                title="Action View"
-              />
-              <IconButton
-                icon={<TableCardIcon />}
-                onClick={() => {}}
-                title="Card View"
-              />
-            </div>
-          </div>
-          <div className="flex w-3/4 justify-end items-end">
-            {/* Sort by dropdown */}
-            <div className="flex gap-2 items-center">
-              <label className="text-sm font-medium text-gray-700">Sort by:</label>
-              <select
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs"
-                disabled={loading}
-              >
-                <option value="updated_at">Updated</option>
-                <option value="website_title">Website</option>
-                <option value="website_status">Status</option>
-              </select>
-            </div>
-
-            {/* Order dropdown */}
-            <div className="flex gap-2">
-              <label className="text-sm font-medium text-gray-700">Order:</label>
-              <select
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs"
-                disabled={loading}
-              >
-                <option value="desc">Desc</option>
-                <option value="asc">Asc</option>
-              </select>
-            </div>
-          </div>
-          </div>
-        </div>
+  return (
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">Websites</h1>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Add Website
+        </button>
       </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
+          {error}
+        </div>
+      )}
+
       <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="min-w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">favicon</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Url</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Website URL
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Title
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Theme
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Last Updated
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {properties.map((property) => (
-              <tr key={property.id} className="hover:bg-gray-50 items-center">
-                <td className="px-6 py-4 whitespace-nowrap" onClick={() => navigate(`/properties/${property.id}/view`)}>
-                  <img 
-                    src='/house.svg'
-                    alt='website favicon' 
-                    className="h-12 w-12 object-cover rounded-md"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/view`)}>
-                  <div className="text-sm text-gray-900">Website Title</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => navigate(`/properties/${property.id}/view`)}>
-                  <div className="text-sm text-gray-900">Website URL</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap justify-center">
-
-                  <button
-                    onClick={() => {}}
-                    className={`p-1 rounded-full transition-colors
-                      ${property.website_status?.toLowerCase() === 'active' 
-                        ? 'bg-green-400 hover:bg-green-600' 
-                        : 'bg-red-400  hover:bg-red-600'}`}
-                    title={property.website_status === 'Active' ? 'Deactivate Property' : 'Activate Property'}
-                  >
-                    <svg 
-                      className="w-6 h-6 text-white cursor-pointer" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2}
-                        d={property.website_status === 'Active' 
-                          ? 'M5 13l4 4L19 7' 
-                          : 'M6 18L18 6M6 6l12 12'}
-                      />
-                    </svg>                            
-                  </button>
-
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button
-                    onClick={() => navigate(`/properties/${property.id}/edit`)}
-                    className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                    title="Edit Property"
-                  >
-                    <svg 
-                      className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                      />
-                    </svg>                            
-                  </button>
-                  <button
-                    onClick={() => navigate(`/properties/${property.id}/images`)}
-                    className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                    title="Manage Images"
-                  >
-                    <svg 
-                      className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z M15 8l1.5 1.5M16.5 9.5L19 12"
-                      />
-                    </svg>                            
-                  </button>
-                  <button
-                    onClick={() => {}}
-                    className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                    title="Delete Property"
-                  >
-                    <svg 
-                      className="w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>                            
-                  </button>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  Loading...
                 </td>
               </tr>
-            ))}
+            ) : websites.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  No websites found
+                </td>
+              </tr>
+            ) : (
+              websites.map((website) => (
+                <tr key={website.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-900">{website.website_url}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-900">{website.settings.title}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-900">{website.settings.theme}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      website.settings.status === 'active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {website.settings.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-900">
+                      {new Date(website.updated_on).toLocaleDateString()}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <IconButton
+                      icon={<EditIcon />}
+                      onClick={() => navigate(`/websites/${website.id}/edit`)}
+                      title="Edit Website"
+                    />
+                    <IconButton
+                      icon={<PropertiesIcon />}
+                      onClick={() => navigate(`/websites/${website.id}/properties`)}
+                      title="View Properties"
+                    />
+                    <IconButton
+                      icon={<WebsiteIcon />}
+                      onClick={()=> window.open(`${website.website_url}`, "_blank")}
+                      title="Go To Website"
+                    />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
-      
-      {loading && (
-        <div className="flex justify-center py-4">
-          <div className="text-gray-500">Loading properties...</div>
-        </div>
-      )}
-      
-      {hasMore && !loading && (
-        <div className="flex justify-center mt-4">
-          <button 
-            onClick={handleLoadMore} 
-            className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
-          >
-            Load More
-          </button>
+
+      {/* Add Website Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Add New Website</h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Website URL
+                  </label>
+                  <input
+                    type="text"
+                    name="website_url"
+                    value={formData.website_url}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="https://example.com"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Website Title
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.settings.title}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    value={formData.settings.description}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Theme
+                  </label>
+                  <select
+                    name="theme"
+                    value={formData.settings.theme}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  >
+                    <option value="default">Default</option>
+                    <option value="modern">Modern</option>
+                    <option value="classic">Classic</option>
+                    <option value="luxury">Luxury</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Status
+                  </label>
+                  <select
+                    name="status"
+                    value={formData.settings.status}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+
+                {/* Logo and Favicon fields can be added later with proper file upload handling */}
+              </div>
+
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Website
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

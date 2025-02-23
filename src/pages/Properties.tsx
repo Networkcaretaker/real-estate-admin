@@ -396,7 +396,7 @@ const Properties = () => {
               <label className="text-sm font-medium text-gray-700">Reference:</label>
               <input
                 type="text"
-                placeholder="Search properties..."
+                placeholder=" Search properties..."
                 className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-44"
                 disabled={loading}
                 value={searchId}
@@ -503,7 +503,7 @@ const Properties = () => {
               <label className="text-sm font-medium text-gray-700">Price:</label>
               <input
                 type="number"
-                placeholder="Min"
+                placeholder=" Min"
                 className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
                 disabled={loading}
                 value={filters.priceMin}
@@ -514,7 +514,7 @@ const Properties = () => {
               />
               <input
                 type="number"
-                placeholder="Max"
+                placeholder=" Max"
                 className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs w-24"
                 disabled={loading}
                 value={filters.priceMax}
