@@ -194,6 +194,14 @@ const Edit_Website: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">Edit Website</h1>
+        <div className="flex gap-4">
+            <button
+              onClick={() => navigate('/websites')}
+              className="rounded bg-gray-100 px-4 py-2 hover:bg-gray-200"
+            >
+              Back to Websites
+            </button>
+        </div>
       </div>
 
       {error && (

@@ -34,6 +34,15 @@ interface WebsiteProperty {
   rooms: PropertyRooms;
   updated_on: string;
 }
+interface Website {
+  id: string;
+  website_url: string;
+  settings: WebsiteSettings;
+  updated_on: string;
+}
+interface WebsiteSettings {
+  title: string;
+}
 
 const WebsiteProperties: React.FC = () => {
   const { websiteId } = useParams<{ websiteId: string }>();
@@ -42,13 +51,42 @@ const WebsiteProperties: React.FC = () => {
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [websiteExists, setWebsiteExists] = useState(false);
+  const [website, setWebsite] = useState<Website | null>(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     checkWebsiteExists();
     loadWebsiteProperties();
+    loadWebsite();
   }, [websiteId]);
+
+  const loadWebsite = async () => {
+      try {
+        if (!websiteId) return;
+        
+        const websiteRef = doc(db, 'websites', websiteId);
+        const websiteDoc = await getDoc(websiteRef);
+        
+        if (!websiteDoc.exists()) {
+          setError('Website not found');
+          return;
+        }
+  
+        const websiteData = {
+          id: websiteDoc.id,
+          ...websiteDoc.data()
+        } as Website;
+  
+        setWebsite(websiteData);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading website:', err);
+        setError('Failed to load website');
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const checkWebsiteExists = async () => {
     try {
@@ -184,9 +222,18 @@ const WebsiteProperties: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Website Properties</h1>
+        <div className="grid">
+        <h1 className="text-2xl font-semibold text-gray-900">{website?.settings.title}</h1>
+        <h1 className="text-xl font-thin text-gray-900">{website?.website_url}</h1>
+        </div>
+        <div className="flex gap-4">
+        <button
+          className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors`}
+        >
+          Select Properties
+        </button>
         <button
           onClick={updateProperties}
           disabled={updating}
@@ -194,8 +241,15 @@ const WebsiteProperties: React.FC = () => {
             updating ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
-          {updating ? 'Updating Properties...' : 'Update Properties'}
+          {updating ? 'Updating Properties...' : 'Update All Properties'}
         </button>
+        <button
+              onClick={() => navigate('/websites')}
+              className="rounded bg-gray-100 px-4 py-2 hover:bg-gray-200"
+            >
+              Back to Websites
+            </button>
+        </div>
       </div>
 
       {error && (
