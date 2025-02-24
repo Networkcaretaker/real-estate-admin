@@ -78,44 +78,6 @@ const Property = () => {
     loadData();
   }, [id]);
 
-  const handleReorder = async (imageId: string, newOrder: number) => {
-    try {
-      if (!id) return;
-      setLoading(false);
-      
-      // Update the order of all images
-      const updates = images.map((image, index) => {
-        if (image.id === imageId) {
-          return propertyService.updateImageOrder(id, image.id, newOrder);
-        }
-        // Adjust other images' order based on the new position
-        if (newOrder <= index) {
-          return propertyService.updateImageOrder(id, image.id, index + 1);
-        }
-        return Promise.resolve();
-      });
-  
-      await Promise.all(updates);
-      await loadPropertyImages(); // Refresh images
-    } catch (error) {
-      console.error('Error reordering images:', error);
-      setError('Failed to reorder images');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleImageDelete = async (imageId: string) => {
-    try {
-      if (!id) return;
-      await propertyService.deletePropertyImage(id, imageId);
-      await loadPropertyImages(); // Refresh images after delete
-    } catch (error) {
-      console.error('Error deleting image:', error);
-      setError('Failed to delete image');
-    }
-  };
-
   const handleStatusChange = async (newStatus: string) => {
     if (!property || !id) return;
     
@@ -179,12 +141,12 @@ const Property = () => {
               disabled={saving}
             />
             <select
-              value={property?.website_status || 'Disabled'}
+              value={property?.website_status || 'disabled'}
               onChange={(e) => handleStatusChange(e.target.value)}
               disabled={saving}
               className="rounded border p-2"
             >
-              <option value="Disabled">Disabled</option>
+              <option value="disabled">Disabled</option>
               <option value="Active">Active</option>
             </select>
             <button
@@ -304,13 +266,16 @@ const Property = () => {
                       {feature}
                     </span>
                   ))}
-                </div>
-                <div className="flex flex-wrap justify-center items-center gap-2 text-xs my-2">
                   {property?.features.exterior.map((feature, index) => (
                     <span key={index} className="rounded-full bg-gray-100 px-3 py-1">
                       {feature}
                     </span>
                   ))}
+                  {property?.features.luxury ? property?.features.luxury.map((feature, index) => (
+                    <span key={index} className="rounded-full bg-gray-100 px-3 py-1">
+                      {feature}
+                    </span>
+                  )) : ''}
                 </div>
               </div>
 

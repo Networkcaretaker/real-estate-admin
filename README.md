@@ -1,50 +1,128 @@
-# React + TypeScript + Vite
+# Real Estate Admin Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+A modern React-based admin interface for managing real estate properties, focusing on seamless content management and image handling. This application serves as the control center for property data that flows from the CRM system through the backend API to the customer-facing website.
 
-Currently, two official plugins are available:
+## Key Features
+- **Property Management**: View, edit, and update property listings
+- **Image Management**: Upload, organize, and optimize property images
+- **AI-Powered Content**: Generate property descriptions and image captions using AI
+- **Firebase Integration**: Real-time data synchronization
+- **Responsive Design**: Full functionality across all device sizes
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- React with TypeScript
+- Firebase/Firestore
+- React Router
+- Google Gemini Vision AI
+- Tailwind CSS
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Prerequisites
+- Node.js 16.x or higher
+- npm or yarn
+- Firebase project and credentials
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Installation
+1. Clone the repository
+```bash
+git clone https://github.com/your-org/real-estate-admin.git
+cd real-estate-admin
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+2. Install dependencies
+```bash
+npm install
+# or
+yarn install
 ```
+
+3. Configure environment variables
+   - Copy `.env.example` to `.env.development` and `.env.production`
+   - Fill in the required Firebase configuration values:
+```
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+```
+
+4. Start the development server
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+## Project Structure
+```
+real-estate-admin/
+├── src/
+│   ├── assets/                # Static assets
+│   ├── components/
+│   │   ├── common/            # Reusable UI components
+│   │   └── layout/            # Layout components
+│   ├── hooks/                 # Custom React hooks
+│   ├── pages/                 # Page components
+│   │   ├── Dashboard.tsx
+│   │   ├── Login.tsx
+│   │   ├── Properties.tsx
+│   │   ├── Property.tsx       # Property details page
+│   │   └── Property_Images.tsx # Image management page
+│   ├── services/
+│   │   ├── firebase/          # Firebase service functions
+│   │   └── api/               # API service functions
+│   ├── types/                 # TypeScript type definitions
+│   ├── utils/                 # Utility functions
+│   └── context/               # React context providers
+├── public/                    # Public assets
+├── .env.example               # Example environment variables
+├── .env.development           # Development environment variables
+├── .env.production            # Production environment variables
+└── package.json               # Project dependencies and scripts
+```
+
+## Features
+
+### Authentication
+- Secure Firebase authentication
+- Role-based access control
+- Protected routes
+
+### Property Management
+- View all properties with filtering and sorting
+- Edit property details and metadata
+- Update property status
+
+### Image Management
+- Dedicated image management interface
+- Drag-and-drop reordering
+- Feature image selection
+- AI-assisted image analysis
+
+### AI Features
+- Generate image titles and descriptions
+- Multiple writing styles (professional, luxury, concise, etc.)
+- AI-assisted property content generation
+- Response history tracking
+
+## Available Scripts
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build locally
+
+## Browser Support
+- Chrome, Firefox, Safari, Edge (latest two versions)
+- Responsive design for mobile and tablet devices
+
+## Contributing
+1. Create a feature branch from `develop`
+2. Make your changes
+3. Open a pull request to merge back to `develop`
+
+## License
+[Your License] - See LICENSE.md for details

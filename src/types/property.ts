@@ -85,6 +85,7 @@ export interface Property {
   features: {
     interior: string[];
     exterior: string[];
+    luxury: string[];
   };
   website_status?: string;
   media: PropertyMedia;
