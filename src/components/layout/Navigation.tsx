@@ -16,9 +16,9 @@ const navItems: NavItem[] = [
   { path: '/dashboard', label: 'Dashboard', icon: <Home className="w-5 h-5" /> },
   { path: '/properties', label: 'Properties', icon: <Building2 className="w-5 h-5" /> },
   { path: '/websites', label: 'Websites', icon: <Globe className="w-5 h-5" /> },
-  { path: '/clients', label: 'Clients', icon: <Users className="w-5 h-5" /> },
-  { path: '/settings', label: 'Settings', icon: <Settings className="w-5 h-5" /> },
-  { path: '/users', label: 'Users', icon: <Users2 className="w-5 h-5" /> },
+  //{ path: '/clients', label: 'Clients', icon: <Users className="w-5 h-5" /> },
+  //{ path: '/settings', label: 'Settings', icon: <Settings className="w-5 h-5" /> },
+  //{ path: '/users', label: 'Users', icon: <Users2 className="w-5 h-5" /> },
 ];
 
 const Navigation: React.FC = () => {

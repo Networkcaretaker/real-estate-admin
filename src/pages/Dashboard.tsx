@@ -1,9 +1,19 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/firebase/auth';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+      try {
+        await authService.logout();
+        navigate('/login');
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
+    };
 
   return (
     <div>
@@ -23,13 +33,13 @@ const Dashboard = () => {
         Manage Websites
         </button>
       </div>
-      <div className="items-center place-items-center justify-center flex flex-col">
+      {/*<div className="items-center place-items-center justify-center flex flex-col">
         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 rounded m-1 w-4/12" onClick={() => navigate('/clients')}>
           Manage Clients
         </button>
-      </div> 
+      </div> */}
       <div className="items-center place-items-center justify-center flex flex-col">
-        <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 rounded m-1 w-4/12" onClick={() => navigate('/clients')}>
+        <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 rounded m-1 w-4/12" onClick={handleLogout}>
           {user?.email} | Logout
         </button>
       </div>
